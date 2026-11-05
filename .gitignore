@@ -1,0 +1,18 @@
+# Generated builds and PDF cache
+/build/
+
+# Local dated and versioned backups
+/backup_v12_2026-11-04/
+/Living_poster_v3_backup_*/
+/src_backup_*/
+/src_v*_backup/
+
+# Local editor launch configuration with machine-specific paths
+/.claude/
+
+# Python caches
+__pycache__/
+*.py[cod]
+
+# Regenerable TeX cache
+**/_texcache/

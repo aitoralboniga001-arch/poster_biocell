@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="48mm" height="48mm" viewBox="0 0 48 48">
+<title>Macrophage poster</title>
+<defs>
+<style>text{font-kerning:normal;font-variant-ligatures:common-ligatures;font-variant-numeric:lining-nums}</style>
+<radialGradient id="rg1" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#5B3426" stop-opacity="0.13"/><stop offset="0.6" stop-color="#5B3426" stop-opacity="0.0585"/><stop offset="1" stop-color="#5B3426" stop-opacity="0"/></radialGradient>
+<linearGradient id="lg2" x1="0.5" y1="0" x2="0.5" y2="1"><stop offset="0" stop-color="#CED694"/><stop offset="0.45" stop-color="#B4C05A"/><stop offset="1" stop-color="#9CA451"/></linearGradient>
+<linearGradient id="lg3" x1="0.5" y1="0" x2="0.5" y2="1"><stop offset="0" stop-color="#EAEECC"/><stop offset="0.45" stop-color="#D6DE98"/><stop offset="1" stop-color="#C0C58A"/></linearGradient>
+</defs>
+<ellipse cx="25.48" cy="25.74" rx="15.12" ry="6.48" fill="url(#rg1)" transform="rotate(-30 25.48 25.74)"/>
+<g transform="translate(24 24) rotate(-30) scale(1)"><path d="M-3.64,-6.3 l0,-1.79M5.07,-6.3 l0,-1.69M13.17,-3.6 l1.63,-1.14M12.18,4.71 l1.09,1.23M3.64,6.3 l0,1.92M-5.07,6.3 l0,1.82M-13.17,3.6 l-1.34,0.93M-12.18,-4.71 l-1.26,-1.42" stroke="#66741E" stroke-width="0.36" stroke-linecap="round" fill="none"/><path d="M-3.64,-8.24h0.01M5.07,-8.14h0.01M14.93,-4.82h0.01M13.37,6.05h0.01M3.64,8.37h0.01M-5.07,8.27h0.01M-14.64,4.61h0.01M-13.55,-6.25h0.01" stroke="#7C8A24" stroke-width="0.85" stroke-linecap="round" fill="none"/><rect x="-14" y="-6" width="28" height="12" rx="6" fill="url(#lg2)" stroke="#4E5A16" stroke-width="0.8"/><rect x="-12.5" y="-4.5" width="25" height="9" rx="4.5" fill="url(#lg3)" stroke="#6A781E" stroke-width="0.45"/><path d="M-11.36,-2.22C-10.89,-1.9 -9.47,-0.34 -8.52,-0.32C-7.57,-0.29 -6.63,-1.79 -5.68,-2.06C-4.73,-2.34 -3.79,-2.25 -2.84,-1.96C-1.89,-1.68 -0.95,-0.95 0,-0.36C0.95,0.23 1.89,1.81 2.84,1.57C3.79,1.33 4.73,-1.32 5.68,-1.81C6.63,-2.29 7.57,-1.73 8.52,-1.33C9.47,-0.93 10.89,0.29 11.36,0.61" fill="none" stroke="#6B5A98" stroke-width="0.65" stroke-linecap="round" opacity="0.9"/><path d="M-8.6,-3.4 L7.4,-3.4" stroke="#FFFFFF" stroke-width="0.72" stroke-linecap="round" opacity="0.6"/></g>
+</svg>

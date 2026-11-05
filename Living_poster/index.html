@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Living Poster — How a Macrophage Destroys What It Engulfs (V2)</title>
+  <style>
+    :root {
+      --desk-bg: #141210;
+      --desk-wood: #1d1916;
+      --paper: #F7F3EA;
+      --ink: #1E2433;
+      --ink-soft: #3A4150;
+      --phag-red: #C0392B;
+      --bio-blue: #1F58C8;
+      --conv-violet: #7A3FB5;
+      --recy-green: #1E9B6B;
+      --path-amber: #B4690E;
+      --infl-magenta: #C81D63;
+      --m6p-gold: #E2B33C;
+      --font-hand: Gabriola, 'Segoe Print', Georgia, serif;
+      --font-banner: 'Sitka Banner', 'Sitka Display', Georgia, serif;
+      --font-serif: 'Sitka Text', Georgia, serif;
+      --font-sans: 'Segoe UI Variable Text', 'Segoe UI', Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 45% 40%, #231e1a 0%, #14110f 70%, #0b0908 100%);
+      font-family: var(--font-sans);
+      color: var(--ink);
+    }
+
+    #app {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #stage {
+      width: 100%;
+      height: 100%;
+      display: block;
+      transition: filter 0.18s ease-out;
+    }
+
+    /* Focus pull & EM flash CSS states on stage */
+    #stage.focus-pull-active {
+      filter: blur(3.5px) contrast(0.97);
+    }
+
+    #stage.em-flash-active {
+      filter: grayscale(0.92) contrast(1.38) brightness(0.94);
+    }
+
+    #stage.play-cursor-hidden {
+      cursor: none;
+    }
+
+    /* HUD Overlays */
+    #hud {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 20;
+      overflow: hidden;
+    }
+
+    /* Top-left subtle status bar */
+    #hud-top-left {
+      position: absolute;
+      top: 14px;
+      left: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: auto;
+      opacity: 0.86;
+      transition: opacity 0.35s ease;
+    }
+    #hud-top-left:hover {
+      opacity: 1;
+    }
+
+    .hud-pill {
+      background: rgba(247, 243, 234, 0.92);
+      border: 1.5px solid rgba(30, 36, 51, 0.28);
+      border-radius: 20px;
+      padding: 4px 13px;
+      font-family: var(--font-serif);
+      font-size: 13px;
+      color: var(--ink);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mode-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--recy-green);
+      display: inline-block;
+    }
+
+    .hud-btn {
+      background: rgba(247, 243, 234, 0.88);
+      border: 1px solid rgba(30, 36, 51, 0.25);
+      border-radius: 14px;
+      padding: 4px 10px;
+      font-family: var(--font-sans);
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+      transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+    }
+    .hud-btn:hover {
+      background: #fff;
+      color: var(--ink);
+      transform: translateY(-1px);
+    }
+    .hud-btn.active {
+      background: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink);
+    }
+
+    /* Speaker Chip (Ink-stamps in at section start, fades after 4s) */
+    #speaker-chip {
+      position: absolute;
+      top: 56px;
+      left: 24px;
+      background: #F8F3E8;
+      border: 2px solid var(--ink);
+      border-radius: 10px 18px 12px 16px / 14px 10px 16px 12px;
+      padding: 6px 20px 4px 16px;
+      font-family: var(--font-hand);
+      font-size: 28px;
+      line-height: 1.15;
+      color: var(--ink);
+      box-shadow: 2px 4px 14px rgba(0, 0, 0, 0.38);
+      transform-origin: left center;
+      transform: scale(1.15);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.45s ease, transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    #speaker-chip.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+    #speaker-chip::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border: 1.5px solid currentColor;
+      border-radius: inherit;
+      opacity: 0;
+      transform: scale(0.95);
+      pointer-events: none;
+    }
+    #speaker-chip.stamp-ring::after {
+      animation: inkStampRing 0.65s ease-out forwards;
+    }
+    @keyframes inkStampRing {
+      0% { opacity: 0.75; transform: scale(0.96); }
+      100% { opacity: 0; transform: scale(1.14); }
+    }
+
+    /* Top-right Stopwatch & Play Counter */
+    #hud-top-right {
+      position: absolute;
+      top: 14px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    #hud-stopwatch {
+      width: 190px;
+      height: 115px;
+      opacity: 0;
+      transform: translateY(-8px) scale(0.96);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
+    }
+    #hud-stopwatch.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    #play-hud {
+      background: rgba(248, 243, 232, 0.95);
+      border: 2px solid var(--ink);
+      border-radius: 12px;
+      padding: 8px 16px;
+      font-family: var(--font-hand);
+      font-size: 23px;
+      color: var(--ink);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.42);
+      display: none;
+      pointer-events: auto;
+      text-align: right;
+    }
+    #play-hud.visible {
+      display: block;
+    }
+    #play-hud .play-sub {
+      font-family: var(--font-sans);
+      font-size: 11.5px;
+      color: var(--ink-soft);
+      margin-top: 2px;
+    }
+    #play-hud .play-sub kbd {
+      background: #e6dfd1;
+      border: 1px solid #b5ab99;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    #play-hud .play-sub kbd.active-food {
+      background: var(--phag-red);
+      color: #fff;
+      border-color: var(--phag-red);
+    }
+
+    /* Bottom-right Microscope Turret */
+    #hud-turret {
+      position: absolute;
+      bottom: 16px;
+      right: 20px;
+      width: 215px;
+      height: 135px;
+      pointer-events: auto;
+      cursor: pointer;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.48));
+      transition: transform 0.25s ease;
+    }
+    #hud-turret:hover {
+      transform: scale(1.03);
+    }
+
+    /* Bottom Progress Thread of Ink Dots */
+    #progress-thread {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 5px 18px;
+      background: rgba(247, 243, 234, 0.82);
+      border: 1px solid rgba(30, 36, 51, 0.22);
+      border-radius: 20px;
+      pointer-events: auto;
+      opacity: 0.45;
+      transition: opacity 0.4s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    #progress-thread:hover,
+    #progress-thread.active-poke {
+      opacity: 0.96;
+    }
+    .prog-line {
+      position: absolute;
+      left: 24px;
+      right: 24px;
+      height: 1.5px;
+      background: rgba(30, 36, 51, 0.28);
+      z-index: 0;
+    }
+    .prog-dot {
+      position: relative;
+      z-index: 1;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #e2dacb;
+      border: 1.8px solid var(--ink);
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .prog-dot:hover {
+      transform: scale(1.35);
+    }
+    .prog-dot.current {
+      transform: scale(1.35);
+      background: var(--ink);
+    }
+    .prog-dot[data-sec="1"].current { background: #1E2433; border-color: #1E2433; }
+    .prog-dot[data-sec="2"].current { background: #C0392B; border-color: #C0392B; }
+    .prog-dot[data-sec="3"].current { background: #1F58C8; border-color: #1F58C8; }
+    .prog-dot[data-sec="4"].current { background: #7A3FB5; border-color: #7A3FB5; }
+    .prog-dot[data-sec="2.7"].current { background: #C0392B; border-color: #C0392B; }
+    .prog-dot[data-sec="5"].current { background: #B4690E; border-color: #B4690E; }
+    .prog-dot[data-sec="6"].current { background: #1E9B6B; border-color: #1E9B6B; }
+
+    /* Key Hints Modal Dialog (modern <dialog closedby="any">) */
+    dialog#help-dialog {
+      margin: auto;
+      background: var(--paper);
+      color: var(--ink);
+      border: 2.5px solid var(--ink);
+      border-radius: 14px;
+      padding: 24px 30px;
+      max-width: 660px;
+      width: 92vw;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.65);
+      font-family: var(--font-sans);
+    }
+    dialog#help-dialog::backdrop {
+      background-color: rgba(12, 10, 8, 0.55);
+      backdrop-filter: blur(2px);
+    }
+    dialog#help-dialog h2 {
+      font-family: var(--font-hand);
+      font-size: 32px;
+      color: var(--phag-red);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .help-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px 22px;
+      margin: 12px 0 16px;
+      font-size: 13.5px;
+    }
+    .help-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0;
+      border-bottom: 1px dashed rgba(30, 36, 51, 0.16);
+    }
+    .help-row kbd {
+      background: #e8e0d1;
+      border: 1px solid #aba18f;
+      border-radius: 5px;
+      padding: 2px 7px;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .help-speakers {
+      font-family: var(--font-serif);
+      font-size: 12.5px;
+      color: var(--ink-soft);
+      background: rgba(30, 36, 51, 0.05);
+      padding: 9px 12px;
+      border-radius: 8px;
+      line-height: 1.45;
+    }
+    .help-close-btn {
+      background: var(--ink);
+      color: var(--paper);
+      border: none;
+      border-radius: 8px;
+      padding: 5px 14px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Main SVG Stage: 1100 x 900 mm poster sitting on dark scientist's desk (-80 -55 1260 1010) -->
+    <svg id="stage" xmlns="http://www.w3.org/2000/svg" viewBox="-80 -55 1260 1010" preserveAspectRatio="xMidYMid meet">
+      <defs id="stage-defs">
+        <!-- Desk wood gradient -->
+        <radialGradient id="desk-grad" cx="50%" cy="45%" r="75%">
+          <stop offset="0%" stop-color="#28221e"/>
+          <stop offset="65%" stop-color="#181412"/>
+          <stop offset="100%" stop-color="#0d0b09"/>
+        </radialGradient>
+
+        <!-- Paper base gradient -->
+        <linearGradient id="paper-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FAF6EE"/>
+          <stop offset="55%" stop-color="#F7F3EA"/>
+          <stop offset="100%" stop-color="#EFE9DC"/>
+        </linearGradient>
+
+        <!-- Slow 20s Paper Light Sweep gradient -->
+        <linearGradient id="light-sweep-grad" x1="0%" y1="0%" x2="100%" y2="35%">
+          <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0"/>
+          <stop offset="45%" stop-color="#FFFDF7" stop-opacity="0.14"/>
+          <stop offset="55%" stop-color="#FFFDF7" stop-opacity="0.18"/>
+          <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+        </linearGradient>
+
+        <!-- Air breath wash gradient -->
+        <linearGradient id="breath-air-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#D7EAF3" stop-opacity="0.38"/>
+          <stop offset="65%" stop-color="#E4F1F6" stop-opacity="0.22"/>
+          <stop offset="100%" stop-color="#E4F1F6" stop-opacity="0"/>
+        </linearGradient>
+
+        <!-- pH Ribbon Gradient (7.2 -> 6.5 -> 5.5 -> 4.5) -->
+        <linearGradient id="ph-ribbon-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#D9A84E"/>
+          <stop offset="33%" stop-color="#E8892D"/>
+          <stop offset="66%" stop-color="#C23B2A"/>
+          <stop offset="100%" stop-color="#7A3FB5"/>
+        </linearGradient>
+
+        <!-- Loupe Brass Gradient -->
+        <linearGradient id="brass-rim-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#F5DF98"/>
+          <stop offset="30%" stop-color="#D4A843"/>
+          <stop offset="65%" stop-color="#9A6E1E"/>
+          <stop offset="88%" stop-color="#E5C168"/>
+          <stop offset="100%" stop-color="#6B490E"/>
+        </linearGradient>
+
+        <!-- Loupe Handle Wood Gradient -->
+        <linearGradient id="wood-handle-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#4A2511"/>
+          <stop offset="38%" stop-color="#7C4324"/>
+          <stop offset="70%" stop-color="#562B14"/>
+          <stop offset="100%" stop-color="#2E1508"/>
+        </linearGradient>
+
+        <!-- Soft Glow Radial Gradient (Pre-rendered sprite style, no heavy SVG filter) -->
+        <radialGradient id="halo-warm-grad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#FFF7D6" stop-opacity="0.92"/>
+          <stop offset="55%" stop-color="#FFEBA8" stop-opacity="0.48"/>
+          <stop offset="100%" stop-color="#FFEBA8" stop-opacity="0"/>
+        </radialGradient>
+
+        <radialGradient id="halo-violet-grad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#F2D9FF" stop-opacity="0.9"/>
+          <stop offset="50%" stop-color="#B66EE8" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#7A3FB5" stop-opacity="0"/>
+        </radialGradient>
+
+        <radialGradient id="halo-amber-grad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#FFEBC2" stop-opacity="0.9"/>
+          <stop offset="55%" stop-color="#E89A2D" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#B4690E" stop-opacity="0"/>
+        </radialGradient>
+
+        <radialGradient id="kiln-glow-grad" cx="46%" cy="46%" r="54%">
+          <stop offset="0%" stop-color="#FF9EC7" stop-opacity="0.65"/>
+          <stop offset="55%" stop-color="#C84B9E" stop-opacity="0.35"/>
+          <stop offset="85%" stop-color="#7A3FB5" stop-opacity="0.18"/>
+          <stop offset="100%" stop-color="#7A3FB5" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- Poster 1100x900 mm clip path -->
+        <clipPath id="poster-clip">
+          <rect x="0" y="0" width="1100" height="900" rx="1.5"/>
+        </clipPath>
+
+        <!-- Loupe dynamic clip path -->
+        <clipPath id="loupe-clip">
+          <circle id="loupe-clip-circle" cx="550" cy="450" r="64"/>
+        </clipPath>
+
+        <!-- Reusable particle sprites -->
+        <g id="sprite-hplus">
+          <circle cx="0" cy="0" r="1.45" fill="#19B5E8" stroke="#096B8C" stroke-width="0.25"/>
+          <path d="M-0.65,0 H0.65 M0,-0.65 V0.65" stroke="#FFFFFF" stroke-width="0.38" stroke-linecap="round"/>
+        </g>
+        <g id="sprite-kplus">
+          <circle cx="0" cy="0" r="1.55" fill="#5F73A3" stroke="#313E5E" stroke-width="0.25"/>
+          <path d="M-0.65,0 H0.65 M0,-0.65 V0.65" stroke="#FFFFFF" stroke-width="0.38" stroke-linecap="round"/>
+        </g>
+        <g id="sprite-ros">
+          <path d="M0,-2.6 L0.55,-0.55 L2.6,0 L0.55,0.55 L0,2.6 L-0.55,0.55 L-2.6,0 L-0.55,-0.55 Z" fill="#FFE066" stroke="#C81D63" stroke-width="0.32"/>
+          <circle cx="0" cy="0" r="0.65" fill="#FFFFFF"/>
+        </g>
+        <g id="sprite-cytokine">
+          <path d="M0,-1.8 L1.6,0 L0,1.8 L-1.6,0 Z" fill="#C81D63" stroke="#5E082B" stroke-width="0.25"/>
+        </g>
+        <g id="sprite-amino">
+          <circle cx="0" cy="0" r="1.35" fill="#2ECC71" stroke="#146B3A" stroke-width="0.25"/>
+          <circle cx="-0.35" cy="-0.35" r="0.4" fill="#FFFFFF" opacity="0.8"/>
+        </g>
+        <g id="sprite-glint">
+          <path d="M0,-3.2 L0.4,-0.4 L3.2,0 L0.4,0.4 L0,3.2 L-0.4,0.4 L-3.2,0 L-0.4,-0.4 Z" fill="#FFFFFF" opacity="0.92"/>
+          <path d="M-1.8,-1.8 L1.8,1.8 M-1.8,1.8 L1.8,-1.8" stroke="#70D6FF" stroke-width="0.35"/>
+        </g>
+        <g id="sprite-rbc">
+          <ellipse cx="0" cy="0" rx="3.1" ry="2.2" fill="#BF3A2E" stroke="#7A1C14" stroke-width="0.22"/>
+          <ellipse cx="0.15" cy="0.1" rx="1.4" ry="0.95" fill="#E38C7D" opacity="0.6"/>
+        </g>
+        <g id="sprite-dust">
+          <circle cx="0" cy="0" r="0.95" fill="#8FA9B5" opacity="0.55"/>
+        </g>
+      </defs>
+
+      <!-- 1. Scientist's Desk Surround -->
+      <g id="desk-surround">
+        <rect x="-350" y="-250" width="1800" height="1400" fill="url(#desk-grad)"/>
+        <!-- Subtle desk wood grain lines -->
+        <path d="M-300,120 Q300,105 1400,130 M-300,460 Q450,480 1400,450 M-300,820 Q550,805 1400,830 M-300,935 Q400,948 1400,928"
+              fill="none" stroke="#ffffff" stroke-width="0.6" opacity="0.03"/>
+        <!-- Multi-layered physical paper drop shadow on the desk -->
+        <rect x="6" y="9" width="1104" height="904" rx="3" fill="#050403" opacity="0.42"/>
+        <rect x="3.5" y="5.5" width="1102" height="902" rx="2.5" fill="#080605" opacity="0.38"/>
+        <rect x="1.5" y="2.5" width="1100.5" height="900.5" rx="2" fill="#0c0908" opacity="0.32"/>
+      </g>
+
+      <!-- 2. The 1100 x 900 mm Poster Paper Sheet -->
+      <g id="poster-sheet" clip-path="url(#poster-clip)">
+        <!-- Warm Paper Base -->
+        <rect id="paper-bg" x="0" y="0" width="1100" height="900" fill="url(#paper-grad)"/>
+
+        <!-- Layer: Base Plate & High-Res Lazy Zone Tiles -->
+        <g id="layer-plate">
+          <image id="plate-base" x="0" y="0" width="1100" height="900" preserveAspectRatio="none" href="assets/poster_fallback.jpg"/>
+          <g id="layer-tiles"></g>
+        </g>
+
+        <!-- Layer: Alveolar Wall (Parallax -1.0%, Breath Flex, RBC flow, ★6 Fibrosis states) -->
+        <g id="layer-wall"></g>
+
+        <!-- Layer: Route Ribbons & Signal Trails -->
+        <g id="layer-routes"></g>
+
+        <!-- Layer: Macrophage Cell & Organelle Actors (Reference Plane 0%) -->
+        <g id="layer-cell"></g>
+
+        <!-- Layer: Air Space & Inhaled Particles (Parallax +1.6%, Breath wash, Silica, Pyroptosis?) -->
+        <g id="layer-air"></g>
+
+        <!-- Layer: Pencil Margin Doodles (★4 Envelope & Sorting Office) -->
+        <g id="layer-doodles"></g>
+
+        <!-- Layer: Lit Poster Labels & Halos -->
+        <g id="layer-labels"></g>
+
+        <!-- Layer: Pooled Particle System (<= 300 nodes) -->
+        <g id="particle-pool"></g>
+
+        <!-- Layer: Play Mode ("Feed the Macrophage" Tendrils & Engulfed Cargo) -->
+        <g id="layer-play"></g>
+
+        <!-- Layer: Opening (★1 Powers of Ten) & Finale (Reverse Dive + 5 Signatures) -->
+        <g id="layer-opening-finale"></g>
+
+        <!-- Layer: Paper Light Sweep (20s period) & Bullet-Time Dimmer -->
+        <rect id="bullet-dimmer" x="0" y="0" width="1100" height="900" fill="#12101B" opacity="0" pointer-events="none"/>
+        <rect id="paper-light-sweep" x="-1100" y="-200" width="900" height="1400" fill="url(#light-sweep-grad)" transform="rotate(18 550 450)" pointer-events="none"/>
+
+        <!-- Paper edge deckle / inner border -->
+        <rect x="0.4" y="0.4" width="1099.2" height="899.2" fill="none" stroke="#D8CEBC" stroke-width="0.8" pointer-events="none"/>
+      </g>
+
+      <!-- 3. ★5 Fourth-Wall Breakout Layer on the Desk (Asbestos fibre running past x=1100 onto the dark desk!) -->
+      <g id="desk-breakout-layer"></g>
+
+      <!-- 4. In-Stage Scientist's Desk Props (Loupe ★2, Real-Size Tags, pH Gauge ★3, Tear-off Calendar ★6) -->
+      <g id="layer-props-svg"></g>
+
+      <!-- 5. Play Mode Custom Cursor (Bacterium / Silica / Asbestos) -->
+      <g id="play-cursor" style="display:none;" pointer-events="none"></g>
+    </svg>
+
+    <!-- HUD Layer -->
+    <div id="hud">
+      <div id="hud-top-left">
+        <div class="hud-pill" id="status-pill">
+          <span class="mode-dot" id="mode-dot"></span>
+          <span id="status-text">Gallery · Circle of Life</span>
+        </div>
+        <button class="hud-btn" id="btn-loupe" title="Toggle Magnifying Loupe (L)">Loupe [L]</button>
+        <button class="hud-btn" id="btn-auto" title="Toggle Auto-Timed Film Mode (A)">Film [A]</button>
+        <button class="hud-btn" id="btn-play" title="Feed the Macrophage Play Mode (G)">Play [G]</button>
+        <button class="hud-btn" id="btn-sound" title="Toggle WebAudio Sound Bed (M)">Sound: Off [M]</button>
+        <button class="hud-btn" id="btn-help" title="Show Controls & Storyboard (H)">Keys [H]</button>
+      </div>
+
+      <!-- Hand-inked Speaker Chip -->
+      <div id="speaker-chip">1 · Alveolar macrophage — Aitor</div>
+
+      <!-- Top-Right Stopwatch & Play Counter -->
+      <div id="hud-top-right">
+        <svg id="hud-stopwatch" viewBox="0 0 190 115"></svg>
+        <div id="play-hud">
+          <div id="play-score">eaten: 0</div>
+          <div class="play-sub">
+            Cargo:
+            <kbd id="kbd-bact" class="active-food" data-cargo="bacterium">B · bacterium</kbd>
+            <kbd id="kbd-sil" data-cargo="silica">S · silica</kbd>
+            <kbd id="kbd-asb" data-cargo="asbestos">X · asbestos</kbd>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom-Right Revolving Microscope Turret -->
+      <svg id="hud-turret" viewBox="0 0 215 135" title="Microscope Objective Nosepiece (clicks with camera zoom)"></svg>
+
+      <!-- Bottom Progress Thread (9 stops: Opening, 1, 2, 3, 4, 2.7, 5, 6, Finale) -->
+      <div id="progress-thread">
+        <div class="prog-line"></div>
+        <div class="prog-dot" data-sec="0" title="★1 Opening: Powers of Ten (Aitor)"></div>
+        <div class="prog-dot" data-sec="1" title="1 · Alveolar macrophage (Aitor)"></div>
+        <div class="prog-dot" data-sec="2" title="2 · Recognition & Maturation (Nerea)"></div>
+        <div class="prog-dot" data-sec="3" title="3 · Lysosome biogenesis (Urtzi)"></div>
+        <div class="prog-dot" data-sec="4" title="4 · Fusion: The Kiss (Eneritz)"></div>
+        <div class="prog-dot" data-sec="2.7" title="2.7 · Killing: The Furnace (Nerea)"></div>
+        <div class="prog-dot" data-sec="5" title="5 · Particles: Silica & Asbestos (Nora)"></div>
+        <div class="prog-dot" data-sec="6" title="6 · Conclusion: The V (Aitor)"></div>
+        <div class="prog-dot" data-sec="finale" title="★ Finale & Signatures"></div>
+      </div>
+    </div>
+
+    <!-- Key Hints Modal (modern <dialog closedby="any"> + fallback) -->
+    <dialog id="help-dialog" closedby="any" aria-labelledby="help-title">
+      <form method="dialog">
+        <h2 id="help-title">
+          <span>The Living Poster · Presenter Controls</span>
+          <button type="submit" class="help-close-btn">Close [Esc]</button>
+        </h2>
+        <div class="help-grid">
+          <div class="help-row"><span>Next beat / section</span><kbd>→ / Space / Click</kbd></div>
+          <div class="help-row"><span>Previous beat / section</span><kbd>←</kbd></div>
+          <div class="help-row"><span>Jump to section (7 = 2.7 Killing)</span><kbd>1 – 6, 7</kbd></div>
+          <div class="help-row"><span>Powers of Ten Opening / Finale</span><kbd>O / E</kbd></div>
+          <div class="help-row"><span>Back to Gallery ("Circle of Life")</span><kbd>Esc / 0</kbd></div>
+          <div class="help-row"><span>Magnifying Loupe on/off (+ scroll zoom)</span><kbd>L</kbd></div>
+          <div class="help-row"><span>Autoplay Film Mode (continuous)</span><kbd>A</kbd></div>
+          <div class="help-row"><span>Pause (freeze as printed poster)</span><kbd>P</kbd></div>
+          <div class="help-row"><span>Play Mode: "Feed the macrophage"</span><kbd>G (then B / S / X)</kbd></div>
+          <div class="help-row"><span>Fullscreen / WebAudio Sound / Hints</span><kbd>F / M / H</kbd></div>
+        </div>
+        <div class="help-speakers">
+          <strong>Speaking Order:</strong>
+          <strong>★0–1 Aitor</strong> (Opening &amp; Macrophage) →
+          <strong>2 Nerea</strong> (Recognition &amp; ★3 One-Take Maturation) →
+          <strong>3 Urtzi</strong> (Lysosome Biogenesis &amp; ★4 M6P Postcode) →
+          <strong>4 Eneritz</strong> (SNARE Bullet-Time Fusion) →
+          <strong>2.7 Nerea</strong> (Killing: The Furnace) →
+          <strong>5 Nora</strong> (Silica, ★5 Off-Paper Asbestos &amp; ★6 Decades) →
+          <strong>6 Aitor &amp; All</strong> (Conclusion &amp; Five Ink Signatures).
+        </div>
+      </form>
+    </dialog>
+  </div>
+
+  <!-- Classic script tags for 100% offline file:/// compatibility (no ES module CORS issues) -->
+  <script src="assets/manifest.js" onerror="window.__manifestLoadFallback=true"></script>
+  <script defer src="engine.js"></script>
+  <script defer src="devices.js"></script>
+  <script defer src="ambient.js"></script>
+  <script defer src="scenes/s0_opening.js"></script>
+  <script defer src="scenes/s1_macrophage.js"></script>
+  <script defer src="scenes/s2_recognition.js"></script>
+  <script defer src="scenes/s3_biogenesis.js"></script>
+  <script defer src="scenes/s4_fusion.js"></script>
+  <script defer src="scenes/s5_killing.js"></script>
+  <script defer src="scenes/s6_particles.js"></script>
+  <script defer src="scenes/s7_conclusion_finale.js"></script>
+  <script defer src="play.js"></script>
+</body>
+</html>

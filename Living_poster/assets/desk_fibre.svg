@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="260mm" height="140mm" viewBox="0 0 260 140">
+<title>Macrophage poster</title>
+<defs>
+<style>text{font-kerning:normal;font-variant-ligatures:common-ligatures;font-variant-numeric:lining-nums}</style>
+<radialGradient id="rg1" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#5B3426" stop-opacity="0.12"/><stop offset="0.6" stop-color="#5B3426" stop-opacity="0.054"/><stop offset="1" stop-color="#5B3426" stop-opacity="0"/></radialGradient>
+<linearGradient id="lg2" x1="0.5" y1="0" x2="0.5" y2="1"><stop offset="0" stop-color="#EADABA"/><stop offset="0.45" stop-color="#D6B676"/><stop offset="1" stop-color="#AD9163"/></linearGradient>
+</defs>
+<rect x="140" y="0" width="120" height="140" fill="#3A2A1D" opacity="0.0"/>
+<path d="M142.2,64.23 L244.2,80.2" fill="none" stroke="#1A110B" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity="0.12" />
+<path d="M141.8,63.43 L243.8,79.4" fill="none" stroke="#1A110B" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.18" />
+<path d="M141.2,62.43 L243.2,78.4" fill="none" stroke="#1A110B" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.24" />
+<ellipse cx="127.6" cy="59.5" rx="121.06" ry="1.66" fill="url(#rg1)" transform="rotate(8.9 127.6 59.5)"/>
+<g transform="translate(12 40) rotate(8.9)"><path d="M231.8,-1.2 q3.42,-0.29 6.85,-1.46M1,-1.2 q-2.93,0.25 -5.87,1.25M231.8,-0.4 q3.49,-0.12 6.97,-0.61M1,-0.4 q-2.99,0.1 -5.98,0.52M231.8,0.4 q3.48,0.15 6.96,0.73M1,0.4 q-2.98,-0.13 -5.97,-0.63M231.8,1.2 q3.41,0.31 6.82,1.57M1,1.2 q-2.92,-0.27 -5.85,-1.35" stroke="#6A4E1F" stroke-width="0.75" stroke-linecap="round" fill="none"/><path d="M231.8,-1.2 q3.42,-0.29 6.85,-1.46M1,-1.2 q-2.93,0.25 -5.87,1.25M231.8,-0.4 q3.49,-0.12 6.97,-0.61M1,-0.4 q-2.99,0.1 -5.98,0.52M231.8,0.4 q3.48,0.15 6.96,0.73M1,0.4 q-2.98,-0.13 -5.97,-0.63M231.8,1.2 q3.41,0.31 6.82,1.57M1,1.2 q-2.92,-0.27 -5.85,-1.35" stroke="#E6D3AD" stroke-width="0.35" stroke-linecap="round" fill="none"/><rect x="0" y="-1.6" width="232.8" height="3.2" rx="1.6" fill="url(#lg2)" stroke="#6A4E1F" stroke-width="0.65"/><path d="M7.74,-1.07 L223.22,-1.07" stroke="#FFF6E0" stroke-width="0.3" stroke-linecap="round" opacity="0.6"/><path d="M2.34,-0.53 L230.12,-0.53" stroke="#6A4E1F" stroke-width="0.25" stroke-linecap="round" opacity="0.55"/><path d="M7.01,0 L224.91,0" stroke="#FFF6E0" stroke-width="0.3" stroke-linecap="round" opacity="0.6"/><path d="M6.02,0.53 L228.34,0.53" stroke="#6A4E1F" stroke-width="0.25" stroke-linecap="round" opacity="0.55"/><path d="M5.64,1.07 L225.95,1.07" stroke="#FFF6E0" stroke-width="0.3" stroke-linecap="round" opacity="0.6"/><path d="M3,-0.96 L228.8,-0.96" stroke="#FFFFFF" stroke-width="0.35" stroke-linecap="round" opacity="0.75"/></g>
+</svg>

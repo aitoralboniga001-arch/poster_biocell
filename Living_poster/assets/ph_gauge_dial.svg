@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="160mm" height="110mm" viewBox="0 0 160 110">
+<title>Macrophage poster</title>
+<defs>
+<style>text{font-kerning:normal;font-variant-ligatures:common-ligatures;font-variant-numeric:lining-nums}</style>
+
+</defs>
+<path d="M14,86 A66,66 0 0 1 146,86 L14,86 Z" fill="#FAF6EC" stroke="#2B3040" stroke-width="0.85" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M28,86 A52,52 0 0 1 40.17,52.58" fill="none" stroke="#6B8BA4" stroke-width="8.5" stroke-linecap="butt" stroke-linejoin="round" opacity="0.88" />
+<path d="M40.17,52.58 A52,52 0 0 1 75.47,34.2" fill="none" stroke="#E8892D" stroke-width="8.5" stroke-linecap="butt" stroke-linejoin="round" opacity="0.88" />
+<path d="M75.47,34.2 A52,52 0 0 1 114.79,47.36" fill="none" stroke="#D2452E" stroke-width="8.5" stroke-linecap="butt" stroke-linejoin="round" opacity="0.88" />
+<path d="M114.79,47.36 A52,52 0 0 1 132,86" fill="none" stroke="#6F36A8" stroke-width="8.5" stroke-linecap="butt" stroke-linejoin="round" opacity="0.88" />
+<text x="42.33" y="78.41" font-family="'Segoe UI Variable Display','Segoe UI',Arial,sans-serif" font-size="7.2" font-weight="600" fill="#4A657A" text-anchor="middle" >7.4</text>
+<text x="61.69" y="54.07" font-family="'Segoe UI Variable Display','Segoe UI',Arial,sans-serif" font-size="7.2" font-weight="600" fill="#B86214" text-anchor="middle" >6.5</text>
+<text x="93.34" y="51.85" font-family="'Segoe UI Variable Display','Segoe UI',Arial,sans-serif" font-size="7.2" font-weight="600" fill="#A82E1B" text-anchor="middle" >5.5</text>
+<text x="116.65" y="75.16" font-family="'Segoe UI Variable Display','Segoe UI',Arial,sans-serif" font-size="7.2" font-weight="600" fill="#5A2A8C" text-anchor="middle" >4.5</text>
+<text x="80" y="74" font-family="Gabriola,'Segoe Print',serif" font-size="10.5" fill="#2B3040" text-anchor="middle">lumen pH</text>
+<g id="ph-needle" transform="translate(80 86)">
+<line x1="0" y1="0" x2="0" y2="-50" stroke="#2B3040" stroke-width="1.5" stroke-linecap="round"/>
+<circle cx="0" cy="0" r="4" fill="#C99E4C" stroke="#2B3040" stroke-width="0.6"/>
+</g>
+</svg>

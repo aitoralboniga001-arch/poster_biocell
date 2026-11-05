@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1100mm" height="900mm" viewBox="0 0 1100 900">
+<title>Macrophage poster</title>
+<defs>
+<style>text{font-kerning:normal;font-variant-ligatures:common-ligatures;font-variant-numeric:lining-nums}</style>
+<radialGradient id="rg1" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#9C5CC6" stop-opacity="0.55"/><stop offset="0.45" stop-color="#B86EE0" stop-opacity="0.28"/><stop offset="0.78" stop-color="#D9A6F0" stop-opacity="0.08"/><stop offset="1" stop-color="#D9A6F0" stop-opacity="0.0"/></radialGradient>
+</defs>
+<circle cx="622" cy="665" r="115" fill="url(#rg1)"/>
+</svg>

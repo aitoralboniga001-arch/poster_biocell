@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="240mm" height="240mm" viewBox="0 0 240 240">
+<title>Macrophage poster</title>
+<defs>
+<style>text{font-kerning:normal;font-variant-ligatures:common-ligatures;font-variant-numeric:lining-nums}</style>
+<radialGradient id="rg1" cx="0.36" cy="0.3" r="0.8" fx="0.32" fy="0.26"><stop offset="0" stop-color="#A58D7C"/><stop offset="0.55" stop-color="#6E472B"/><stop offset="1" stop-color="#593928"/></radialGradient>
+<radialGradient id="rg2" cx="0.36" cy="0.3" r="0.8" fx="0.32" fy="0.26"><stop offset="0" stop-color="#E1CA9D"/><stop offset="0.55" stop-color="#C99E4C"/><stop offset="1" stop-color="#A68243"/></radialGradient>
+<radialGradient id="rg3" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#F4FAFC" stop-opacity="0.08"/><stop offset="0.75" stop-color="#D8ECF2" stop-opacity="0.16"/><stop offset="1" stop-color="#8FA8B2" stop-opacity="0.28"/></radialGradient>
+<radialGradient id="rg4" cx="0.36" cy="0.3" r="0.8" fx="0.32" fy="0.26"><stop offset="0" stop-color="#E3CDA2"/><stop offset="0.55" stop-color="#C99E4C"/><stop offset="1" stop-color="#A37F42"/></radialGradient>
+</defs>
+<path d="M157.33,165.81C165.69,177.71 204.7,218.84 216.02,228.74C227.33,238.64 223.09,227.33 225.21,225.21C227.33,223.09 238.64,227.33 228.74,216.02C218.84,204.7 177.71,165.69 165.81,157.33C153.91,148.96 148.96,153.91 157.33,165.81Z" fill="url(#rg1)" stroke="#2B3040" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M154.5,164.4L166.87,176.06L176.06,166.87L164.4,154.5Z" fill="url(#rg2)" stroke="#2B3040" stroke-width="0.7" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="105" cy="105" r="75" fill="url(#rg3)"/>
+<circle cx="105" cy="105" r="73.5" fill="none" stroke="#5A6872" stroke-width="1.2" opacity="0.25"/>
+<circle cx="105" cy="105" r="78" fill="none" stroke="url(#rg4)" stroke-width="7"/>
+<circle cx="105" cy="105" r="81.5" fill="none" stroke="#2B3040" stroke-width="0.75" opacity="0.85"/>
+<circle cx="105" cy="105" r="74.5" fill="none" stroke="#7A5B20" stroke-width="0.65" opacity="0.85"/>
+<path d="M45.46,83.33 A63.36,63.36 0 0 1 85.42,44.74" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" opacity="0.75"/>
+<circle cx="100.58" cy="41.79" r="1.21" fill="#FFFFFF" opacity="0.68"/>
+<path d="M29.66,84.81 A78,78 0 0 1 72.04,34.31" fill="none" stroke="#FFFFFF" stroke-width="1.1" stroke-linecap="round" opacity="0.65"/>
+<circle cx="90.12" cy="28.43" r="0.61" fill="#FFFFFF" opacity="0.59"/>
+</svg>

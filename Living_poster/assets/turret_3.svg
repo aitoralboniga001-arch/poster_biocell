@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="200mm" height="120mm" viewBox="0 0 200 120">
+<title>Macrophage poster</title>
+<defs>
+<style>text{font-kerning:normal;font-variant-ligatures:common-ligatures;font-variant-numeric:lining-nums}</style>
+<radialGradient id="rg1" cx="0.36" cy="0.3" r="0.8" fx="0.32" fy="0.26"><stop offset="0" stop-color="#898F98"/><stop offset="0.55" stop-color="#4A5260"/><stop offset="1" stop-color="#3E4250"/></radialGradient>
+<radialGradient id="rg2" cx="0.36" cy="0.3" r="0.8" fx="0.32" fy="0.26"><stop offset="0" stop-color="#90949B"/><stop offset="0.55" stop-color="#363D4A"/><stop offset="1" stop-color="#313442"/></radialGradient>
+<radialGradient id="rg3" cx="0.36" cy="0.3" r="0.8" fx="0.32" fy="0.26"><stop offset="0" stop-color="#E1CA9D"/><stop offset="0.55" stop-color="#C99E4C"/><stop offset="1" stop-color="#A68243"/></radialGradient>
+</defs>
+<path d="M42,18 Q100,32 158,18 L146,46 Q100,56 54,46 Z" fill="url(#rg1)" stroke="#2B3040" stroke-width="0.8" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M46,30 Q100,42 154,30" fill="none" stroke="#C99E4C" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="2.0 1.4" />
+<g transform="translate(66 42) rotate(34) scale(0.82)" opacity="0.65">
+<rect x="-9" y="0" width="18" height="42" fill="url(#rg2)" stroke="#2B3040" stroke-width="0.65" rx="2"/>
+<rect x="-10" y="0" width="20" height="5" fill="url(#rg3)" stroke="#2B3040" stroke-width="0.5" rx="1"/>
+<rect x="-8.5" y="29" width="17" height="4.2" fill="#2B6CB0" stroke="#2B3040" stroke-width="0.35"/>
+<path d="M-8,42 L-5,49 L5,49 L8,42 Z" fill="url(#rg3)" stroke="#2B3040" stroke-width="0.55" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+<g transform="translate(134 42) rotate(-34) scale(0.82)" opacity="0.65">
+<rect x="-9" y="0" width="18" height="52" fill="url(#rg2)" stroke="#2B3040" stroke-width="0.65" rx="2"/>
+<rect x="-10" y="0" width="20" height="5" fill="url(#rg3)" stroke="#2B3040" stroke-width="0.5" rx="1"/>
+<rect x="-8.5" y="39" width="17" height="4.2" fill="#1E8A5A" stroke="#2B3040" stroke-width="0.35"/>
+<path d="M-8,52 L-5,59 L5,59 L8,52 Z" fill="url(#rg3)" stroke="#2B3040" stroke-width="0.55" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+<g transform="translate(100 46) rotate(0) scale(1)" opacity="1">
+<rect x="-9" y="0" width="18" height="48" fill="url(#rg2)" stroke="#2B3040" stroke-width="0.65" rx="2"/>
+<rect x="-10" y="0" width="20" height="5" fill="url(#rg3)" stroke="#2B3040" stroke-width="0.5" rx="1"/>
+<rect x="-8.5" y="35" width="17" height="4.2" fill="#6F36A8" stroke="#2B3040" stroke-width="0.35"/>
+<path d="M-8,48 L-5,55 L5,55 L8,48 Z" fill="url(#rg3)" stroke="#2B3040" stroke-width="0.55" stroke-linecap="round" stroke-linejoin="round" />
+</g>
+<text x="100" y="122" font-family="Gabriola,'Segoe Print',serif" font-size="14" fill="#6F36A8" text-anchor="middle">100 000×</text>
+</svg>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="180mm" height="48mm" viewBox="0 0 180 48">
+<title>Macrophage poster</title>
+<defs>
+<style>text{font-kerning:normal;font-variant-ligatures:common-ligatures;font-variant-numeric:lining-nums}</style>
+
+</defs>
+<circle cx="8" cy="24" r="2.2" fill="#2B3040" stroke="#2B3040" stroke-width="0.4"/>
+<path d="M10,24.01L10.35,24.02L10.7,24.03L11.05,24.04L11.4,24.04L11.75,24.02L12.1,23.99L12.45,23.94L12.8,23.89L13.15,23.84L13.5,23.8L13.85,23.77L14.2,23.74L14.55,23.73L14.9,23.71L15.25,23.7L15.6,23.69L15.95,23.67L16.3,23.65L16.65,23.62L17,23.59L17.35,23.57L17.7,23.54L18.05,23.51L18.4,23.49L18.75,23.46L19.1,23.44L19.45,23.42L19.8,23.41L20.15,23.41L20.5,23.43L20.85,23.48L21.2,23.54L21.55,23.62L21.9,23.7L22.25,23.77L22.6,23.83L22.95,23.88L23.3,23.91L23.65,23.93L24,23.94L24,24.07L23.65,24.1L23.3,24.12L22.95,24.14L22.6,24.15L22.25,24.15L21.9,24.15L21.55,24.13L21.2,24.11L20.85,24.08L20.5,24.05L20.15,24.02L19.8,23.99L19.45,23.99L19.1,24L18.75,24.04L18.4,24.08L18.05,24.13L17.7,24.18L17.35,24.2L17,24.22L16.65,24.21L16.3,24.18L15.95,24.15L15.6,24.12L15.25,24.1L14.9,24.09L14.55,24.1L14.2,24.13L13.85,24.17L13.5,24.22L13.15,24.26L12.8,24.3L12.45,24.33L12.1,24.35L11.75,24.34L11.4,24.33L11.05,24.3L10.7,24.26L10.35,24.2L10,24.14Z" fill="#2B3040"/>
+<path d="M24,16L32,7L174,7L174,41L32,41L24,32Z" fill="#FAF6EC" stroke="#2B3040" stroke-width="0.75" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="31" cy="24" r="1.8" fill="#F7F3EA" stroke="#2B3040" stroke-width="0.45"/>
+<text x="104" y="28.2" font-family="Gabriola,'Segoe Print',serif" font-size="13.5" fill="#2B3040" text-anchor="middle">you · 1.7 m</text>
+</svg>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="140mm" height="160mm" viewBox="0 0 140 160">
+<title>Macrophage poster</title>
+<defs>
+<style>text{font-kerning:normal;font-variant-ligatures:common-ligatures;font-variant-numeric:lining-nums}</style>
+
+</defs>
+<rect x="25" y="24" width="96" height="112" fill="#8A7E6B" rx="4" opacity="0.25"/>
+<rect x="22" y="20" width="96" height="112" fill="#FAF6EC" stroke="#2B3040" stroke-width="0.85" rx="3"/>
+<rect x="22" y="20" width="96" height="26" fill="#8A560A" stroke="#2B3040" stroke-width="0.75" rx="3"/>
+<circle cx="44" cy="28" r="3.2" fill="#E8E2D5" stroke="#2B3040" stroke-width="0.6"/>
+<path d="M42,28 A4,6 0 1 1 46,28" fill="none" stroke="#C99E4C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+<circle cx="96" cy="28" r="3.2" fill="#E8E2D5" stroke="#2B3040" stroke-width="0.6"/>
+<path d="M94,28 A4,6 0 1 1 98,28" fill="none" stroke="#C99E4C" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+<line x1="26" y1="48" x2="114" y2="48" stroke="#8A7F6C" stroke-width="0.5" stroke-linecap="round" stroke-dasharray="2.0 1.6"/>
+<text x="70" y="38" font-family="'Segoe UI Variable Text','Segoe UI',Arial,sans-serif" font-size="6.2" font-weight="600" fill="#FFFFFF" text-anchor="middle" >LUNG TISSUE LOG</text>
+<text x="70" y="88" font-family="'Sitka Display',Georgia,serif" font-size="15.5" font-weight="700" fill="#2B3040" text-anchor="middle" >MONTH 1</text>
+<text x="70" y="114" font-family="Gabriola,'Segoe Print',serif" font-size="13" fill="#8A560A" text-anchor="middle">persistent cup</text>
+<path d="M34,128C45.33,122 98.67,111 114,114C129.33,117 137.33,140 126,146C114.67,152 61.33,153 46,150C30.67,147 22.67,134 34,128Z" fill="#F2ECE0" stroke="#2B3040" stroke-width="0.55" stroke-linecap="round" stroke-linejoin="round" opacity="0.85" />
+<text x="76" y="140" font-family="'Sitka Subheading',Georgia,serif" font-size="7.5" font-weight="400" fill="#8A7F6C" text-anchor="middle" >DAY 1</text>
+</svg>

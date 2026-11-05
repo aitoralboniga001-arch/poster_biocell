@@ -1,0 +1,792 @@
+"""Tissue scale: the alveolar air space and the alveolar wall the macrophage rests on (V1.2, pathology specialist).
+
+The wall runs the full width as a histological cross-section: lining fluid / surfactant film, type I and type II
+pneumocytes, basement membrane, capillaries (endothelium, red blood cells) and interstitium.  It changes continuously
+from a thin healthy septum (left) to a thickened fibrotic one (right, geom.fibrosis): wavy collagen bundles,
+fibroblasts turning into alpha-SMA myofibroblasts, type II hyperplasia, recruited neutrophils / monocytes leaving
+the capillaries toward the injured epithelium.  No outline frame: the lower edge feathers into the paper.
+
+Draw order: draw(doc) paints only the air space (and the inhaled particles drifting in it) BEFORE the cell.
+The wall itself is painted by wall(doc), which m_patho calls AFTER the cell group, so the epithelium sits cleanly
+under the cell base (the cell's paper halo and shadow do not wash over the tissue)."""
+import math, random
+from lib import *
+from style import shade, tone, lighten, darken, mix, contact_shadow, spec, shade_rot, sheen_rot, SHADOW
+from bio import silica, asbestos_fibre, bacterium
+import geom as G
+
+# ----------------------------------------------------------------------------------------- palette (calm, desaturated)
+TISSUE_H = '#F3E4DF'     # healthy interstitium (pale rose-greige)
+TISSUE_F = '#EEDCC6'     # fibrotic interstitium (warmer tan)
+EPI = '#F6E3DD'          # type I pneumocyte cytoplasm
+EPI_LINE = '#BF8D83'     # apical plasma membrane of the epithelium
+EPI_NUC = '#9A8AA8'      # nuclei (haematoxylin-like, muted)
+BM = '#A98378'           # basement membrane
+LINING = '#DCEAF0'       # alveolar lining fluid (hypophase)
+FILM = '#8FB5C6'         # surfactant film at the air interface
+COLLAGEN = '#C7A170'     # collagen bundles (tan / ochre, quieter than PATH)
+COLL_HI = '#EAD7B4'
+ENDO = '#DDB2A6'         # endothelium
+PLASMA = '#FBF1EC'
+RBC = '#BF3A2E'
+ASMA = '#B0503F'         # alpha-SMA stress fibres
+LAB = '#7C5F56'          # label colour for anatomy
+
+from wallgeom import CELL_BASE_DIP, LIN, dip, surface      # V2: one definition shared with the cell outline
+
+
+def smooth(t):
+    t = min(1.0, max(0.0, t))
+    return t * t * (3 - 2 * t)
+
+
+def _ug(doc, kind, stops, **a):
+    gid = doc.uid('sg')
+    st = ''.join('<stop offset="%s" stop-color="%s" stop-opacity="%s"/>' % (fmt(o), c, fmt(op)) for o, c, op in stops)
+    at = ' '.join('%s="%s"' % (k, fmt(v)) for k, v in a.items())
+    doc.defs.append('<%sGradient id="%s" gradientUnits="userSpaceOnUse" %s>%s</%sGradient>' % (kind, gid, at, st, kind))
+    return 'url(#%s)' % gid
+
+
+def _xs(x0, x1, step=2.0):
+    n = max(1, int((x1 - x0) / step))
+    return [x0 + (x1 - x0) * i / n for i in range(n + 1)]
+
+
+# ----------------------------------------------------------------------------------------- surface profile
+# type II pneumocytes bulge into the air space: (x, half-width, height)
+TYPE2 = [(112, 11.5, 10.5), (176, 10.5, 9.5)]     # V2: both left of the macrophage heel (x ~205)
+TYPE2_HYPER = [(1071, 9.0, 8.4), (1089, 9.0, 9.2), (1107, 9.0, 8.6)]
+DAMAGE = (906, 990)      # injured type I epithelium under the open asbestos cup (ROS + enzymes leak here)
+
+
+def bulge(x):
+    h = 0.0
+    for (cx, hw, hh) in TYPE2 + TYPE2_HYPER:
+        t = abs(x - cx) / hw
+        if t < 1:
+            h = max(h, hh * (1 - t ** 4) ** 0.75)
+    return h
+
+
+def apical(x):
+    """Apical surface including type II bulges."""
+    return surface(x) - bulge(x)
+
+
+# ----------------------------------------------------------------------------------------- air space + inhaled particles
+def air_space(doc):
+    """The sheet is the inside of one alveolus: a whisper of cool air tone above the wall."""
+    g = _ug(doc, 'linear', [(0, '#E6F0F4', 0.0), (0.66, '#E6F0F4', 0.0), (0.9, '#E1EDF2', 0.42), (0.94, '#E1EDF2', 0.42),
+                            (1, '#E1EDF2', 0.0)], x1=0, y1=92, x2=0, y2=860)
+    rect(doc, 0, 92, 1100, 768, fill=g)
+
+
+def _drift(doc, pts, op=0.32):
+    """Very faint dotted drift trail."""
+    path(doc, cr_path(pts, False), stroke='#8FA9B5', w=0.32, dash='0.01 1.6', op=op)
+
+
+def _small_fibre(doc, x, y, L, rot, w=1.25, seed=3):
+    a = math.radians(rot)
+    asbestos_fibre(doc, x - math.cos(a) * L / 2, y - math.sin(a) * L / 2, x + math.cos(a) * L / 2, y + math.sin(a) * L / 2,
+                   w=w, color='#D2B27A', frays=False, seed=seed)
+
+
+def inhaled(doc):
+    """A sparse drift of inhaled material entering from the top-left toward the cell: silica crystals, fibres,
+    a bacterium.  Quiet, small, like dust in a light beam."""
+    _drift(doc, [(262, 92), (300, 108), (352, 118), (402, 128)], op=0.3)
+    _drift(doc, [(270, 140), (286, 160), (300, 170)], op=0.25)
+    silica(doc, 279, 100, s=0.42, rot=18)
+    _small_fibre(doc, 318, 107, 15, 24, w=1.1, seed=5)
+    silica(doc, 352, 121, s=0.42, rot=-30)
+    bacterium(doc, 384, 113, L=13, W=5.6, rot=-14, lps=False, flagella=False, seed=11)
+    _small_fibre(doc, 431, 128, 30, 8, w=1.15, seed=6)
+    silica(doc, 283, 152, s=0.42, rot=40)
+    # some particles are cleared back up the airways (mucociliary clearance): a faint return arrow toward the top-left
+    arrow(doc, [(338, 136), (310, 128), (284, 118), (268, 112)], '#9DB3BD', 'transport', w=0.5, head=2.6, opacity=0.8)
+    T(doc, 300, 139.5, 'cleared ↑', size=4.6, weight=700, fill='#4F6874', halo=PAPER)
+
+
+def draw(doc):
+    """Under the cell: the air space only (V2: the old drifting particles are gone; the particles owner draws the
+    inhaled material in AIR_RIGHT).  The wall is drawn by wall(doc), called from build_poster before the cell."""
+    air_space(doc)
+
+
+# ----------------------------------------------------------------------------------------- cells of the wall
+def rbc(doc, x, y, r=3.3, rot=0, edge=0.0):
+    """Red blood cell: biconcave disc.  edge=0 face-on (pale centre), edge=1 seen edge-on (dumbbell)."""
+    base = RBC
+    if edge < 0.5:
+        ry = r * 0.9
+        ell(doc, x + 0.25, y + 0.45, r, ry, fill='#6A1A12', rot=rot, op=0.10)
+        ell(doc, x, y, r, ry, fill=shade(doc, base, light=0.32, dark=0.14), stroke=tone(base, 0.3), w=0.18, rot=rot)
+        ell(doc, x + r * 0.06, y + ry * 0.08, r * 0.46, ry * 0.42, fill='#E08B7C', rot=rot, op=0.55)
+    else:
+        a = math.radians(rot)
+        ca, sa = math.cos(a), math.sin(a)
+        L, t = r, r * 0.42
+        pts = [(-L, 0), (-L * 0.75, -t), (-L * 0.15, -t * 0.55), (0, -t * 0.5), (L * 0.15, -t * 0.55), (L * 0.75, -t),
+               (L, 0), (L * 0.75, t), (L * 0.15, t * 0.55), (0, t * 0.5), (-L * 0.15, t * 0.55), (-L * 0.75, t)]
+        P_ = [(x + px * ca - py * sa, y + px * sa + py * ca) for px, py in pts]
+        path(doc, cr_path(P_, True), fill=shade(doc, base, light=0.32, dark=0.14), stroke=tone(base, 0.3), w=0.18)
+
+
+def capillary(doc, cx, cy, rx, ry, rot, seed, n_rbc=3, leuko=None):
+    """Capillary in section: endothelium (thin wall with flattened bulging nuclei), plasma lumen, RBCs."""
+    rnd = random.Random(seed)
+    contact_shadow(doc, cx, cy, rx, ry, rot=rot, strength=0.07, spread=1.08)
+    outer = blob(cx, cy, rx, ry, n=12, j=0.035, seed=seed, rot=rot)
+    path(doc, outer, fill=shade(doc, ENDO, light=0.35, dark=0.08), stroke=tone(ENDO, 0.18), w=0.35)
+    path(doc, blob(cx, cy, rx - 1.15, ry - 1.15, n=12, j=0.035, seed=seed, rot=rot), fill=PLASMA)
+    a = math.radians(rot)
+    for (u, side) in ((rnd.uniform(-0.55, -0.2), -1), (rnd.uniform(0.25, 0.6), 1)):
+        px, py = u * (rx - 1.6), side * (ry - 1.5)
+        x, y = cx + px * math.cos(a) - py * math.sin(a), cy + px * math.sin(a) + py * math.cos(a)
+        ell(doc, x, y, min(4.0, rx * 0.22), 0.95, fill=EPI_NUC, rot=rot, op=0.8)
+    for k in range(n_rbc):
+        t = (k + 0.5) / n_rbc
+        px = -rx * 0.68 + t * rx * 1.36 + rnd.uniform(-1.2, 1.2)
+        py = rnd.uniform(-ry * 0.22, ry * 0.22)
+        x, y = cx + px * math.cos(a) - py * math.sin(a), cy + px * math.sin(a) + py * math.cos(a)
+        r = min(3.4, ry * 0.52)
+        rbc(doc, x, y, r=r, rot=rot + rnd.uniform(-35, 35), edge=rnd.choice((0, 0, 1)))
+    if leuko:
+        for (kind, u, v) in leuko:
+            px, py = u * rx, v * ry
+            x, y = cx + px * math.cos(a) - py * math.sin(a), cy + px * math.sin(a) + py * math.cos(a)
+            (neutrophil if kind == 'n' else monocyte)(doc, x, y, 3.2)
+
+
+def neutrophil(doc, x, y, r=3.6, squeeze=1.0, rot=0):
+    """Neutrophil: pale granular cytoplasm, multilobed (3-4 lobes) nucleus joined by fine chromatin bridges."""
+    contact_shadow(doc, x, y, r * squeeze, r / squeeze, rot=rot, strength=0.1)
+    ell(doc, x, y, r * squeeze, r / squeeze, fill=shade(doc, '#E4E3EE', light=0.6, dark=0.07), stroke='#8E8DA8', w=0.3, rot=rot)
+    k = r / 3.6
+    lobes = [(-1.6, -0.6), (-0.2, 0.9), (1.3, -0.3), (0.6, -1.5)]
+    a = math.radians(rot)
+    P_ = [(x + (dx * squeeze * math.cos(a) - dy / squeeze * math.sin(a)) * k, y + (dx * squeeze * math.sin(a) + dy / squeeze * math.cos(a)) * k)
+          for dx, dy in lobes]
+    path(doc, cr_path(P_[:3], False), stroke='#55507E', w=0.35 * k)
+    path(doc, 'M%s,%s L%s,%s' % (fmt(P_[2][0]), fmt(P_[2][1]), fmt(P_[3][0]), fmt(P_[3][1])), stroke='#55507E', w=0.3 * k)
+    for (px, py) in P_:
+        circ(doc, px, py, 0.82 * k, fill=shade(doc, '#6C6699', light=0.35, dark=0.12))
+    spec(doc, x, y, r, a0=205, a1=240, op=0.6, inset=0.78, w=0.3)
+
+
+def monocyte(doc, x, y, r=4.0, squeeze=1.0, rot=0):
+    """Monocyte: larger, kidney-shaped nucleus."""
+    contact_shadow(doc, x, y, r * squeeze, r / squeeze, rot=rot, strength=0.1)
+    ell(doc, x, y, r * squeeze, r / squeeze, fill=shade(doc, '#E7DFEC', light=0.6, dark=0.07), stroke='#8F84A6', w=0.3, rot=rot)
+    k = r / 4.0
+    path(doc, blob(x - 0.3 * k, y + 0.1 * k, 2.3 * k * squeeze, 1.7 * k / squeeze, n=8, j=0.12, seed=5, rot=rot),
+         fill=shade(doc, '#766C9E', light=0.35, dark=0.12))
+    ell(doc, x + 1.5 * k, y + 0.15 * k, 0.8 * k, 0.65 * k, fill='#E7DFEC', rot=rot)     # nuclear notch
+    spec(doc, x, y, r, a0=205, a1=240, op=0.6, inset=0.78, w=0.3)
+
+
+def fibroblast(doc, x, y, L, rot, myo=0.0, seed=1):
+    """Spindle fibroblast; myo -> 1 turns it into a larger alpha-SMA myofibroblast (stress fibres, denser body)."""
+    rnd = random.Random(seed)
+    L = L * (1 + 0.25 * myo)
+    W = L * (0.12 + 0.05 * myo)
+    body = mix('#EBD5C9', '#E2BFAD', myo)
+    d = 'M%s,0 C%s,%s %s,%s 0,%s C%s,%s %s,%s %s,0 C%s,%s %s,%s 0,%s C%s,%s %s,%s %s,0 Z' % (
+        fmt(-L / 2), fmt(-L * 0.36), fmt(-W * 0.35), fmt(-L * 0.2), fmt(-W), fmt(-W),
+        fmt(L * 0.2), fmt(-W), fmt(L * 0.36), fmt(-W * 0.3), fmt(L / 2),
+        fmt(L * 0.36), fmt(W * 0.3), fmt(L * 0.2), fmt(W), fmt(W),
+        fmt(-L * 0.2), fmt(W), fmt(-L * 0.36), fmt(W * 0.35), fmt(-L / 2))
+    doc.add('<g transform="translate(%s %s) rotate(%s)">' % (fmt(x), fmt(y), fmt(rot)))
+    path(doc, d, fill=shade_rot(doc, body, rot, light=0.45, dark=0.1), stroke=tone(body, 0.3), w=0.32)
+    for s_ in (-1, 1):
+        path(doc, 'M%s,0 q%s,%s %s,%s' % (fmt(s_ * L / 2 * 0.98), fmt(s_ * 3), fmt(rnd.uniform(-1, 1)), fmt(s_ * 6), fmt(rnd.uniform(-1.5, 1.5))),
+             stroke=tone(body, 0.25), w=0.35)
+    ell(doc, -L * 0.04, 0, L * 0.17, W * 0.42, fill=EPI_NUC, op=0.85)
+    if myo > 0.35:
+        n = 3 if myo > 0.7 else 2
+        for i in range(n):
+            dy = (i - (n - 1) / 2) * W * 0.55
+            path(doc, 'M%s,%s L%s,%s' % (fmt(-L * 0.42), fmt(dy * 0.8), fmt(L * 0.42), fmt(dy * 0.8)),
+                 stroke=ASMA, w=0.32, op=0.55 + 0.35 * myo)
+    doc.add('</g>')
+
+
+def collagen_bundle(doc, x, y, L, rot, n, f, seed):
+    """Wavy collagen bundle: a few parallel strands with a lit edge.  f = fibrosis (density / contrast)."""
+    rnd = random.Random(seed)
+    a = math.radians(rot)
+    ca, sa = math.cos(a), math.sin(a)
+    amp = rnd.uniform(0.6, 1.1)
+    wl = rnd.uniform(11, 15)
+    ph = rnd.uniform(0, 6.3)
+    for i in range(n):
+        off = (i - (n - 1) / 2) * 0.85
+        pts = []
+        steps = int(L / 2.0)
+        for k in range(steps + 1):
+            u = -L / 2 + L * k / steps
+            v = off + amp * math.sin(2 * math.pi * u / wl + ph) * (1 - (2 * u / L) ** 6)
+            pts.append((x + u * ca - v * sa, y + u * sa + v * ca))
+        op = (0.2 + 0.36 * f) * (0.8 + 0.2 * rnd.random())
+        path(doc, poly_d(pts), stroke=mix(COLLAGEN, '#AE7535', 0.55 * f), w=0.6 + 0.2 * f, op=op)
+        if i == 0:
+            path(doc, poly_d([(px + sa * 0.3, py - ca * 0.3) for px, py in pts]), stroke=lighten(COLL_HI, 0.3 * f), w=0.35, op=min(1, op * (0.9 + 0.6 * f)))
+
+
+
+
+# ----------------------------------------------------------------------------------------- the wall (V2b: living tissue)
+# The septum the macrophage sits on keeps its apical surface (wallgeom.surface).  Its underside is organic: thin over
+# the interstitial gaps, bulging over each capillary, thickening right into a merged fibrotic mass.  Beneath it the
+# parenchyma recedes in depth (parench.py): the next alveoli as pale air spaces framed by lacy septa, then fainter,
+# cooler lace further back.  Everything dissolves into the paper through a painted (noise-feathered) mask: the left
+# end, the bottom under the conclusion / references, and the lower right corner.
+import parench as PA
+import texture as TX
+from wallgeom import depth, wall_bottom, SEPT_CAPS, SEPT_GAPS, BM_D
+
+SEPT_H = '#F1D8D1'       # healthy septum (rose)
+AIR_DEEP = '#D9E7EE'     # air in the alveoli below
+NEAR_H = '#EBD3D0'       # next septa (slightly cooler than the septum in focus)
+NEAR_F = '#E7CDB4'
+FAR_LACE = '#D9D0DE'     # far septa (cool lilac grey)
+
+
+def lower(x):
+    return wall_bottom(x)
+
+
+def _fs(x):
+    """Bottom fade start: calm under the conclusion (x < ~480), lower on the right above the references."""
+    t = smooth((x - 470) / 120)
+    y = 806 + (840 - 806) * t
+    return y - 30 * smooth((x - 1080) / 26)
+
+
+def _fe(x):
+    t = smooth((x - 470) / 120)
+    return _fs(x) + 30 - 8 * t
+
+
+def _tissue_mask(doc):
+    """Luminance mask (raster, noise-feathered like a painted edge): opaque tissue that dissolves to the paper."""
+    import numpy as np
+    x0, y0, x1, y1, ppm = -20.0, 600.0, 1130.0, 900.0, 2.0
+    w, h = int((x1 - x0) * ppm), int((y1 - y0) * ppm)
+    rng = np.random.default_rng(5)
+    n1 = TX._fbm(h, w, 14 * ppm, rng, octaves=4)
+    n2 = TX._fbm(h, w, 5 * ppm, rng, octaves=3)
+    X = x0 + (np.arange(w) + 0.5) / ppm
+    Y = (y0 + (np.arange(h) + 0.5) / ppm)[:, None]
+    fs = np.array([_fs(x) for x in X])[None, :]
+    fe = np.array([_fe(x) for x in X])[None, :]
+    t = (Y - fs + 4.0 * n1 + 1.2 * n2) / (fe - fs)
+    t = np.clip(t, 0, 1)
+    ab = 1 - t * t * (3 - 2 * t)
+    tl = np.clip((X[None, :] - 2.0 + 5.0 * n1 + 1.5 * n2) / 36.0, 0, 1)
+    al = tl * tl * (3 - 2 * tl)
+    a = np.clip(ab * al, 0, 1)
+    from PIL import Image
+    img = Image.fromarray((a * 255).astype('uint8'), 'L')
+    uri = TX._uri(img, 'png')
+    mid = doc.uid('tmask')
+    doc.defs.append('<mask id="%s" maskUnits="userSpaceOnUse" x="%s" y="%s" width="%s" height="%s">'
+                    '<image x="%s" y="%s" width="%s" height="%s" preserveAspectRatio="none" href="%s"/></mask>'
+                    % (mid, fmt(x0), fmt(y0), fmt(x1 - x0), fmt(y1 - y0), fmt(x0), fmt(y0), fmt(x1 - x0), fmt(y1 - y0), uri))
+    return mid
+
+
+def _below(xs, dy=2.0, ybot=885):
+    """Region under the apical surface down past the fade."""
+    return [(x, surface(x) + dy) for x in xs] + [(xs[-1], ybot), (xs[0], ybot)]
+
+
+def _wash(doc, d, colors, seed, op, bbox, ppm=2.6):
+    """Watercolour texture (texture.wash_img) clipped even-odd, so the air spaces stay clean."""
+    polys = TX.path_polys(d)
+    img = TX.wash_img(polys, colors, bbox, ppm, seed, edge=0.6, grain=1.2, inset=0.0, wobble=0.3)
+    x0, y0, x1, y1 = bbox
+    cid = doc.uid('wce')
+    doc.defs.append('<clipPath id="%s"><path d="%s" clip-rule="evenodd"/></clipPath>' % (cid, d))
+    doc.add('<image x="%s" y="%s" width="%s" height="%s" preserveAspectRatio="none" clip-path="url(#%s)" opacity="%s" href="%s"/>'
+            % (fmt(x0), fmt(y0), fmt(x1 - x0), fmt(y1 - y0), cid, fmt(op), TX._uri(img, 'png')))
+
+
+def _holes_d(holes):
+    return ''.join(cr_path(h['poly'], True) for h in holes)
+
+
+def _parenchyma(doc, xs):
+    rnd = random.Random(12)
+    under = _below(xs)
+    ucl = doc.uid('under')
+    doc.defs.append('<clipPath id="%s"><path d="%s"/></clipPath>' % (ucl, poly_d(under, True)))
+    doc.add('<g clip-path="url(#%s)">' % ucl)
+    # air of the alveoli below: pale, cool, a touch brighter with depth
+    g = _ug(doc, 'linear', [(0, AIR_DEEP, 0.95), (1, '#E6EEF0', 0.8)], x1=0, y1=770, x2=0, y2=860)
+    path(doc, poly_d(under, True), fill=g)
+    # ---- far lace (deepest, lightest, coolest)
+    import wallgeom as _WG
+    _dxf = G.HEALTHY_X - 520
+    _ln = getattr(_WG, 'LUMEN_NARROW', 0)
+    fcol = (lambda x: smooth((x - 560) / 260)) if (_dxf == 0 and _ln == 0) else (lambda x: min(1.0, smooth((x - (560 + _dxf)) / 260) + 0.35 * _ln))
+    pts = PA.seeds(-40, 1150, 735, 892, lambda x: 15 - 4 * fcol(x), 12.5, rnd)
+    holes, _ = PA.foam(pts, lambda x, y: 0.5 + 2.2 * fcol(x), lambda x, y: 0.9 * fcol(x - 30),
+                       lambda x, y: y > surface(x) - 4, rnd, wobble=0.5)
+    d = poly_d(under, True) + _holes_d(holes)
+    fl = _ug(doc, 'linear', [(0, FAR_LACE, 1), (0.52, FAR_LACE, 1), (0.75, mix(FAR_LACE, '#E3CDB8', 0.6), 1),
+                             (1, mix(FAR_LACE, '#E3CDB8', 0.8), 1)], x1=0, y1=0, x2=1100, y2=0)
+    path(doc, d, fill=fl, op=0.5, extra='fill-rule="evenodd"')
+    path(doc, _holes_d(holes), stroke='#A99FB8', w=0.2, op=0.3)
+    # aerial-perspective veil over the far lace
+    path(doc, poly_d(under, True), fill='#E8EFF1', op=0.25)
+    # ---- near lace: the next alveoli right under the septum
+    fd = (lambda x: smooth((x - 520) / 290)) if (_dxf == 0 and _ln == 0) else (lambda x: min(1.0, smooth((x - (520 + _dxf)) / 290) + 0.42 * _ln))
+    pts = PA.seeds(-46, 1150, 734, 900, lambda x: 33 - 9 * fd(x), 25, rnd, jit=0.26)
+    holes, ridges = PA.foam(pts, lambda x, y: 1.05 + 4.5 * fd(x) + 0.35 * math.sin(x / 7 + y),
+                            lambda x, y: 1.05 * fd(x + 20), lambda x, y: y > 772, rnd, wobble=0.9)
+    _near_holes[:] = holes
+    # soft cast shadow of the near lace on the far one (light from the top left)
+    d = poly_d(under, True) + _holes_d(holes)
+    doc.add('<g transform="translate(1.1 1.8)">')
+    path(doc, d, fill='#8E6F78', op=0.07, extra='fill-rule="evenodd"')
+    doc.add('</g>')
+    _nf0 = 0.48 if _dxf == 0 else max(0.15, min(0.92, (G.HEALTHY_X - 40) / 1100))
+    _nf1 = 0.62 if _dxf == 0 else max(0.25, min(0.96, (G.FIBROTIC_X - 80) / 1100))
+    _nf2 = 0.7 if _dxf == 0 else max(0.32, min(0.99, G.FIBROTIC_X / 1100))
+    nf = _ug(doc, 'linear', [(0, NEAR_H, 1), (_nf0, NEAR_H, 1), (_nf1, mix(NEAR_H, TISSUE_F, 0.75), 1), (_nf2, TISSUE_F, 1),
+                             (1, mix(TISSUE_F, '#E6CDAE', 0.35), 1)],
+             x1=0, y1=0, x2=1100, y2=0)
+    path(doc, d, fill=nf, extra='fill-rule="evenodd"')
+    # painted texture over the near septa
+    _wash(doc, d, [NEAR_H, '#E6C7C4', '#E4D2DA'], 8, 0.28, (-20, 755, 1125, 890))
+    # the thickening septa fill with collagen as they merge into the fibrotic mass
+    lc = doc.uid('lace')
+    doc.defs.append('<clipPath id="%s"><path d="%s" clip-rule="evenodd"/></clipPath>' % (lc, d))
+    doc.add('<g clip-path="url(#%s)">' % lc)
+    for k in range(70):
+        x = rnd.uniform(560 if _dxf == 0 else max(220, 560 + _dxf), 880 if _dxf >= 0 else 980)
+        f = fd(x)
+        if rnd.random() > f * 1.3:
+            continue
+        collagen_bundle(doc, x, rnd.uniform(wall_bottom(x) - 2, 862), rnd.uniform(14, 24), rnd.uniform(-25, 25),
+                        rnd.choice((1, 2, 2, 3)), 0.5 + 0.5 * f, seed=700 + k)
+    doc.add('</g>')
+    # rims: shadowed inner edge at the top left of each space, lit edge at the lower right, surfactant film
+    for hl in holes:
+        hd = cr_path(hl['poly'], True)
+        cid = doc.uid('hc')
+        doc.defs.append('<clipPath id="%s"><path d="%s"/></clipPath>' % (cid, hd))
+        doc.add('<g clip-path="url(#%s)">' % cid)
+        cx, cy = hl['c']
+        sh = 1.0 + 1.2 * (1 - hl['collapse'])
+        doc.add('<path d="%s" fill="none" stroke="#7F5E66" stroke-width="%s" opacity="0.13" transform="translate(%s %s)"/>'
+                % (hd, fmt(2.6 * sh), fmt(0.9 * sh), fmt(1.3 * sh)))
+        doc.add('<path d="%s" fill="none" stroke="#FFFFFF" stroke-width="1.0" opacity="0.35" transform="translate(-0.7 -0.9)"/>' % hd)
+        doc.add('</g>')
+    path(doc, _holes_d(holes), stroke=EPI_LINE, w=0.28, op=0.3)
+    # capillaries and nuclei in the near septa (small: further away than the septum in focus)
+    for (mx, my), ang, L, a, b in ridges:
+        if my < 772 or my > 870 or rnd.random() < 0.35:
+            continue
+        f = fd(mx)
+        if f > 0.3 and rnd.random() < 0.8:
+            continue
+        if rnd.random() < 0.65 - 0.4 * f:
+            ell(doc, mx, my, 1.35, 0.8, fill=mix(RBC, NEAR_H, 0.35), rot=ang + rnd.uniform(-15, 15), op=0.75)
+            if L > 12 and rnd.random() < 0.6:
+                t = rnd.uniform(0.25, 0.35)
+                ell(doc, a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, 1.2, 0.72, fill=mix(RBC, NEAR_H, 0.4), rot=ang, op=0.7)
+        else:
+            ell(doc, mx, my, 1.9, 0.6, fill=EPI_NUC, rot=ang, op=0.55)
+    doc.add('</g>')
+    return holes
+
+
+_near_holes = []
+
+
+def _septum_d(xs):
+    top = [(x, surface(x)) for x in xs]
+    bot = [(x, wall_bottom(x)) for x in xs]
+    return poly_d(top + bot[::-1], True)
+
+
+def wall(doc):
+    X0, X1 = -20, 1120
+    xs = _xs(X0, X1, 1.0)
+    mid = _tissue_mask(doc)
+    doc.add('<g mask="url(#%s)">' % mid)
+    _parenchyma(doc, xs)
+    band = _septum_d(xs)
+    # the septum casts a soft shadow down-right onto the alveoli below
+    for (dx, dy, op) in ((1.2, 2.2, 0.08), (2.6, 4.6, 0.05), (4.2, 7.5, 0.03)):
+        sg = _ug(doc, 'linear', [(0, '#6E4E58', op), (0.5, '#6E4E58', op), (0.6, '#6E4E58', 0)], x1=0, y1=0, x2=1100, y2=0)
+        doc.add('<path d="%s" fill="%s" transform="translate(%s %s)"/>' % (band, sg, fmt(dx), fmt(dy)))
+    fill = _ug(doc, 'linear', [(0, SEPT_H, 1), (G.HEALTHY_X / 1100, SEPT_H, 1), (G.FIBROTIC_X / 1100, TISSUE_F, 1),
+                               (1, mix(TISSUE_F, '#E6CDAE', 0.35), 1)], x1=0, y1=0, x2=1100, y2=0)
+    path(doc, band, fill=fill)
+    _wash(doc, band, [mix(SEPT_H, TISSUE_F, 0.2), '#ECC9C0', '#EED9C3'], 3, 0.5, (-20, 730, 1125, 885))
+    # light from the top left: a soft lit upper layer, deeper tone toward the lower fibrotic mass
+    sh = _ug(doc, 'linear', [(0, '#FFFFFF', 0.0), (0.12, '#FFFFFF', 0.0), (0.5, '#9A6F5E', 0.035), (1, '#8A5E4E', 0.07)],
+             x1=0, y1=760, x2=0, y2=870)
+    path(doc, band, fill=sh)
+    cid = doc.uid('wallclip')
+    doc.defs.append('<clipPath id="%s"><path d="%s"/></clipPath>' % (cid, band))
+    doc.add('<g clip-path="url(#%s)">' % cid)
+    _inflamed(doc)
+    _collagen(doc)
+    _capillaries(doc)
+    _fibroblasts(doc)
+    _collapsed(doc)
+    _leukocytes(doc)
+    doc.add('</g>')
+    bm = [(x, surface(x) + BM_D + 0.5 * G.fibrosis(x)) for x in xs]
+    path(doc, poly_d(bm), stroke=BM, w=0.45, op=0.65)
+    bm2 = [(x, y + 0.9) for x, y in bm if G.fibrosis(x) > 0.05]
+    path(doc, poly_d(bm2), stroke=BM, w=0.35, op=0.35)
+    _lower_epithelium(doc)
+    _epithelium(doc, xs)
+    doc.add('</g>')
+    _cell_contact(doc)
+    _free_particle(doc)
+
+
+def _inflamed(doc):
+    """5.4 (polish pass): the inflamed interstitium under the injured epithelium reads as its own place -- a soft rose
+    flush (hyperaemia / oedema) with a warmer core, so leukocytes are seen against it and not lost in the collagen."""
+    g = doc.radgrad([(0, '#E58E8C', 0.62), (0.5, '#EBA8A2', 0.36), (1, '#F2C8BC', 0)], cx=0.5, cy=0.42, r=0.5)
+    ell(doc, 1012, 790, 118, 54, fill=g)
+    g2 = doc.radgrad([(0, '#D46C70', 0.32), (1, '#E9A3A0', 0)], cx=0.5, cy=0.5, r=0.5)
+    ell(doc, 968, 776, 46, 20, fill=g2)
+
+
+def _collagen(doc):
+    rnd = random.Random(7)
+    _x0 = 520 if G.HEALTHY_X == 520 else max(200, G.HEALTHY_X)
+    n_bun = 260 if G.HEALTHY_X == 520 else int(260 * (1120 - _x0) / 600)
+    for k in range(n_bun):
+        x = rnd.uniform(_x0, 1120)
+        f = G.fibrosis(x)
+        if rnd.random() > (0.05 + f * 0.95) * (0.35 if x > 955 else 0.8):     # thinner where the inflamed focus is
+            continue
+        s, d = surface(x), depth(x)
+        if d < 16:
+            continue
+        y = rnd.uniform(s + 6, min(s + d - 4, 868))
+        quiet = in_label_zone(x, y)
+        n = rnd.choice((2, 3, 3, 4))
+        L = rnd.uniform(22, 30) + 26 * f
+        rot = rnd.uniform(-6, 6) + (rnd.uniform(-22, 22) if rnd.random() < 0.15 else 0)
+        collagen_bundle(doc, x, y, L, rot, n, f * (0.12 if quiet else 1.0), seed=k)
+    # a few fine fibres even in the healthy interstitium
+    for k in range(30):
+        x = rnd.uniform(-10, 560 if G.HEALTHY_X == 520 else min(1100, G.HEALTHY_X + 40))
+        y = surface(x) + rnd.uniform(3.4, max(3.6, depth(x) - 3.2))
+        collagen_bundle(doc, x, y, rnd.uniform(9, 14), rnd.uniform(-6, 6), 1, 0.25, seed=500 + k)
+
+
+CAPS = [  # fibrotic part: (x, depth below the basement membrane of the capillary centre, rx, ry, rot, n_rbc, leukocytes)
+    (668, 14, 16, 5.6, -4, 2, None), (742, 22, 18, 6.4, 5, 2, None), (812, 30, 12, 6.0, -12, 1, None),
+    (846, 18, 22, 6.6, 3, 2, [('n', 0.5, 0.25)]), (935, 34, 23, 7.0, -3, 2, [('n', -0.45, -0.3)]),
+    (1012, 27, 26, 7.2, 4, 2, [('n', 0.45, -0.35)]), (1085, 32, 20, 6.8, -6, 2, None),
+    (705, 50, 14, 5.4, 6, 1, None), (790, 72, 16, 5.6, -5, 2, None), (1040, 66, 18, 5.8, 3, 1, None),
+]
+
+
+def _capillaries(doc):
+    for k, (cx, rx, ry) in enumerate(SEPT_CAPS):
+        cy = surface(cx) + BM_D + 0.25 + ry
+        capillary(doc, cx, cy, rx, ry, 0, seed=70 + k, n_rbc=max(1, int(rx / 6.5)))
+    for k, (x, dz, rx, ry, rot, n, leu) in enumerate(CAPS):
+        y = surface(x) + 2.8 + dz
+        if y + ry > wall_bottom(x) - 3 or in_label_zone(x, y):
+            continue
+        capillary(doc, x, y, rx, ry, rot, seed=40 + k, n_rbc=n, leuko=leu)
+
+
+FIBRO = [  # (x, depth, L, rot)
+    (640, 22, 22, 5), (690, 34, 24, -6), (722, 42, 26, 4), (700, 18, 22, -8), (770, 46, 26, -5), (790, 14, 22, 3),
+    (860, 44, 28, 6), (884, 62, 26, -4), (964, 41, 24, -6), (1050, 41, 26, 4), (745, 66, 24, 7), (668, 48, 22, -3),
+    (822, 62, 26, 3), (850, 80, 24, -5), (990, 80, 26, 5), (1080, 84, 24, -4), (760, 88, 24, 2), (930, 92, 26, -3),
+]
+
+
+LABEL_ZONE = (880, 798, 960, 828)     # quiet patch of fibrotic interstitium that carries the 5.4 / 5.5 labels
+
+
+def in_label_zone(x, y):
+    x0, y0, x1, y1 = LABEL_ZONE
+    return x0 - 6 < x < x1 and y > y0 - 4
+
+
+def _fibroblasts(doc):
+    for k, x in enumerate(SEPT_GAPS):
+        y = surface(x) + BM_D + (depth(x) - 2 * BM_D) / 2
+        if depth(x) > 18:
+            continue
+        fibroblast(doc, x, y, 9.5, 4 * ((-1) ** k), myo=0.0, seed=90 + k)
+    for k, (x, dz, L, rot) in enumerate(FIBRO):
+        if in_label_zone(x, surface(x) + dz):
+            continue
+        f = G.fibrosis(x)
+        if dz > depth(x) - 6:
+            continue
+        myo = smooth((f - 0.35) / 0.6) * (1.0 if x > 690 else 0.75)
+        fibroblast(doc, x, surface(x) + dz, L, rot, myo=myo, seed=k)
+
+
+COLLAPSED = [  # alveoli trapped and collapsing in the thickening septum: (x, depth fraction, rx, ry, rot)
+    (628, 0.62, 7.5, 2.6, -6), (650, 0.45, 9, 2.8, 4), (676, 0.66, 11, 3.0, 4), (716, 0.72, 8.5, 2.2, -3),
+    (758, 0.6, 10, 2.4, 5), (742, 0.86, 6.5, 1.8, -8), (800, 0.82, 8, 1.9, 3), (690, 0.86, 9, 2.2, -4),
+    (770, 0.35, 8, 2.0, 2), (604, 0.5, 6, 1.8, 3), (700, 0.3, 7, 2.0, -5), (735, 0.5, 7, 1.9, 4),
+]
+
+
+def _collapsed(doc):
+    """Collapsed alveolar spaces in the thickening septum, lined by hyperplastic cuboidal type II cells; an
+    inflammatory cell in one of them."""
+    for k, (x, fr, rx, ry, rot) in enumerate(COLLAPSED):
+        d = depth(x)
+        y = surface(x) + 6 + (d - 12) * fr
+        if y + ry + 3 > wall_bottom(x) or y > 862:
+            continue
+        busy = [(cx, surface(cx) + 2.8 + dz, crx, cry) for (cx, dz, crx, cry, *_r) in CAPS]
+        busy += [(fx, surface(fx) + dz, L / 2.3, 2.6) for (fx, dz, L, rot_) in FIBRO]
+        busy += [(cx, surface(cx) + BM_D + 0.25 + cry, crx + 1.9, cry + 1.9) for (cx, crx, cry) in SEPT_CAPS]
+        if any(abs(x - bx) < rx + bw + 2 and abs(y - by) < ry + bh + 2.5 for bx, by, bw, bh in busy):
+            continue
+        rnd = random.Random(300 + k)
+        outer = blob(x, y, rx + 1.6, ry + 1.6, n=10, j=0.1, seed=300 + k, rot=rot)
+        path(doc, outer, fill='#EBC9BC', op=0.55)
+        inner = blob_pts(x, y, rx, ry, n=9, j=0.22, seed=310 + k, rot=rot)
+        path(doc, cr_path(inner, True), fill='#CFE0E8', stroke=EPI_LINE, w=0.3, op=0.95)
+        path(doc, cr_path(inner, True), fill='none', stroke='#7F5E66', w=0.8, op=0.12, extra='transform="translate(0.4 0.6)"')
+        a = math.radians(rot)
+        for i in range(int(rx * 0.9)):
+            t = 2 * math.pi * (i + 0.5) / int(rx * 0.9) + rnd.uniform(-0.1, 0.1)
+            px, py = (rx + 1.0) * math.cos(t), (ry + 1.0) * math.sin(t)
+            circ(doc, x + px * math.cos(a) - py * math.sin(a), y + px * math.sin(a) + py * math.cos(a), 0.55,
+                 fill=EPI_NUC, op=0.6)
+        if k in (2, 3) and rx > 8:
+            neutrophil(doc, x + 1.5, y + 0.2, 2.0, squeeze=1.25, rot=rot)
+
+
+def _lower_epithelium(doc):
+    """Type I epithelium (and type II cells) on the septum's underside, facing the next alveolus; it fades out where
+    the septum merges into the fibrotic mass."""
+    xs = _xs(-20, 860, 0.6)
+    ap = [(x, wall_bottom(x)) for x in xs]
+    bas = PA_offset(ap, 2.2)
+    lin = PA_offset(ap, -1.0)
+    gm = doc.uid('lefade')
+    doc.defs.append('<mask id="%s" maskUnits="userSpaceOnUse" x="-30" y="700" width="1200" height="200">'
+                    '<rect x="-30" y="700" width="1200" height="200" fill="%s"/></mask>'
+                    % (gm, _ug(doc, 'linear', [(0, '#fff', 1), (0.48, '#fff', 1), (0.585, '#fff', 0), (1, '#fff', 0)],
+                                x1=0, y1=0, x2=1100, y2=0)))
+    doc.add('<g mask="url(#%s)">' % gm)
+    path(doc, poly_d(ap + lin[::-1], True), fill=LINING, op=0.9)
+    path(doc, poly_d(bas + ap[::-1], True), fill=EPI)
+    path(doc, poly_d(bas), stroke=BM, w=0.4, op=0.6)
+    path(doc, poly_d(ap), stroke=EPI_LINE, w=0.55)
+    path(doc, poly_d(lin), stroke=FILM, w=0.3, op=0.7)
+    caps = [c[0] for c in SEPT_CAPS]
+    for x in caps[::2]:
+        y = wall_bottom(x)
+        ell(doc, x + 3, y - 1.1, 4.2, 0.85, fill=EPI_NUC, op=0.7)
+    for (cx, hw, hh) in TYPE2_LOW:
+        _type2_low(doc, cx, hw, hh)
+    doc.add('</g>')
+
+
+def PA_offset(pts, d):
+    """Offset an open polyline by d along its normal (positive = up, into the septum, for a left->right curve)."""
+    out = []
+    for i, (x, y) in enumerate(pts):
+        a = pts[max(0, i - 1)]
+        b = pts[min(len(pts) - 1, i + 1)]
+        dx, dy = b[0] - a[0], b[1] - a[1]
+        L = math.hypot(dx, dy) or 1
+        out.append((x + dy / L * d, y - dx / L * d))
+    return out
+
+
+TYPE2_LOW = [(SEPT_GAPS[1], 7.0, 5.5), (SEPT_GAPS[6], 7.5, 6.0)]     # type II cells on the underside, in the gaps
+
+
+def _type2_low(doc, cx, hw, hh):
+    rnd = random.Random(int(cx))
+    xs2 = _xs(cx - hw, cx + hw, 0.6)
+    bot = [(x, wall_bottom(x) + hh * (1 - min(1, abs(x - cx) / hw) ** 4) ** 0.75) for x in xs2]
+    top = [(x, wall_bottom(x) - 2.2) for x in xs2]
+    path(doc, poly_d(top + bot[::-1], True), fill=shade(doc, '#F4DBD0', light=0.5, dark=0.06), stroke=EPI_LINE, w=0.45)
+    mv = ''.join('M%s,%s l0,0.8' % (fmt(x), fmt(y)) for x, y in bot[2:-2:2])
+    doc.add('<path d="%s" stroke="%s" stroke-width="0.28" stroke-linecap="round" opacity="0.7"/>' % (mv, EPI_LINE))
+    sy = wall_bottom(cx)
+    circ(doc, cx - 0.4, sy + hh * 0.25, min(2.1, hh * 0.32), fill=shade(doc, '#A796B5', light=0.3, dark=0.1))
+    for (dx, dy) in ((-hw * 0.5, hh * 0.35), (hw * 0.45, hh * 0.42), (hw * 0.05, hh * 0.72)):
+        r = rnd.uniform(0.9, 1.15)
+        circ(doc, cx + dx, sy + dy, r, fill='#F7EED8', stroke='#B89A5A', w=0.22)
+        circ(doc, cx + dx, sy + dy, r * 0.6, fill='none', stroke='#C9AE72', w=0.18)
+
+
+def _leukocytes(doc):
+    """5.4: neutrophils and monocytes leaving capillaries (diapedesis) toward the injured epithelium, and scattered
+    through the inflamed fibrotic interstitium."""
+    s = surface
+    monocyte(doc, 922, s(922) + 26.5, 3.8, squeeze=1.25, rot=-55)
+    neutrophil(doc, 951, s(951) + 17, 3.4, squeeze=1.15, rot=-40)
+    neutrophil(doc, 968, s(968) + 8.5, 3.3, squeeze=1.1, rot=-20)
+    neutrophil(doc, 1000, s(1000) + 19.5, 3.4, squeeze=1.25, rot=-60)
+    monocyte(doc, 985, s(985) + 30, 3.8, squeeze=1.1, rot=-30)
+    for pts in ([(1000, s(1000) + 23), (990, s(990) + 16), (975, s(975) + 10)],
+                [(935, s(935) + 30), (942, s(942) + 21), (950, s(950) + 13)]):
+        path(doc, cr_path(pts, False), stroke='#8C7FA0', w=0.3, dash='0.01 1.2', op=0.6)
+    for (x, dz, r, kind) in ((812, 46, 3.0, 'n'), (1062, 52, 3.1, 'n'), (1030, 84, 3.4, 'm'), (868, 86, 3.0, 'n'),
+                             (770, 58, 3.2, 'm'),
+                             # the inflamed focus (polish pass): leukocytes gathered under the injured epithelium
+                             (1066, 17, 3.4, 'm'), (1092, 13, 3.1, 'n'),
+                             (965, 50, 3.2, 'n'), (1052, 40, 3.6, 'm'), (1002, 50, 3.0, 'n'), (1074, 52, 3.1, 'n')):
+        if in_label_zone(x, s(x) + dz) or s(x) + dz > wall_bottom(x) - 5:
+            continue
+        (neutrophil if kind == 'n' else monocyte)(doc, x, s(x) + dz, r, squeeze=1.1, rot=(x % 50) - 25)
+
+
+def _epithelium(doc, xs):
+    top = [(x, apical(x)) for x in xs]
+    lin = [(x, y - LIN * (1 - 0.45 * G.fibrosis(x))) for x, y in top]
+    path(doc, poly_d(lin + top[::-1], True), fill=LINING, op=0.95)
+    base = [(x, surface(x) + 2.6 + 0.5 * G.fibrosis(x)) for x in xs]
+    epi = poly_d(top + base[::-1], True)
+    path(doc, epi, fill=_ug(doc, 'linear', [(0, EPI, 1), (0.7, EPI, 1), (1, mix(EPI, '#F0D2C2', 0.6), 1)], x1=0, y1=0, x2=1100, y2=0))
+    d0, d1 = DAMAGE
+    left = [p for p in top if p[0] <= d0 + 6]
+    right = [p for p in top if p[0] >= d1 - 4]
+    for seg in (left, right):
+        path(doc, poly_d(seg), stroke=EPI_LINE, w=0.6)
+    path(doc, poly_d(lin), stroke=FILM, w=0.3, op=0.75)
+    for x in (18, 70, 196, 318, 430, 552, 668, 790, 868, 1030):
+        if any(abs(x - c[0]) < c[1] + 4 for c in TYPE2 + TYPE2_HYPER):
+            continue
+        ell(doc, x, surface(x) + 1.25, 5.2, 0.95, fill=EPI_NUC, op=0.72)
+    for x in (48, 150, 236, 372, 494, 610, 728, 832, 896, 1040):
+        path(doc, 'M%s,%s l0.25,2.4' % (fmt(x), fmt(surface(x) + 0.15)), stroke=EPI_LINE, w=0.35, op=0.7)
+    for (cx, hw, hh) in TYPE2:
+        type2(doc, cx, hw, hh, seed=int(cx))
+    for (cx, hw, hh) in TYPE2_HYPER:
+        type2(doc, cx, hw, hh, seed=int(cx), hyper=True)
+    _damage(doc)
+
+
+
+def type2(doc, cx, hw, hh, seed=1, hyper=False):
+    """Cuboidal type II pneumocyte bulging into the air space: microvilli, round nucleus, lamellar bodies."""
+    rnd = random.Random(seed)
+    xs = _xs(cx - hw, cx + hw, 0.8)
+    top = [(x, apical(x)) for x in xs]
+    bas = [(x, surface(x) + 2.6 + 0.5 * G.fibrosis(x)) for x in xs]
+    body = mix('#F4DBD0', '#EFD1C2', 0.5 if hyper else 0)
+    path(doc, poly_d(top + bas[::-1], True), fill=shade(doc, body, light=0.5, dark=0.06), stroke=EPI_LINE, w=0.5)
+    for x in (cx - hw * 0.98, cx + hw * 0.98):
+        path(doc, 'M%s,%s L%s,%s' % (fmt(x), fmt(apical(x)), fmt(x), fmt(surface(x) + 2.6)), stroke=EPI_LINE, w=0.35, op=0.7)
+    mv = []
+    for x in _xs(cx - hw * 0.7, cx + hw * 0.7, 1.1):
+        mv.append('M%s,%s l0,-0.9' % (fmt(x), fmt(apical(x))))
+    doc.add('<path d="%s" stroke="%s" stroke-width="0.3" stroke-linecap="round" opacity="0.7"/>' % (''.join(mv), EPI_LINE))
+    sy = surface(cx)
+    circ(doc, cx + 0.5, sy - hh * 0.22, min(2.7, hh * 0.27), fill=shade(doc, '#A796B5', light=0.3, dark=0.1))
+    for (dx, dy) in ((-hw * 0.5, -hh * 0.45), (hw * 0.45, -hh * 0.55), (-hw * 0.1, -hh * 0.78), (hw * 0.12, -hh * 0.08)):
+        x, y = cx + dx, sy + dy
+        r = rnd.uniform(1.15, 1.45)
+        circ(doc, x, y, r, fill='#F7EED8', stroke='#B89A5A', w=0.25)
+        circ(doc, x, y, r * 0.6, fill='none', stroke='#C9AE72', w=0.2)
+    if not hyper:
+        for dx in (-3.5, 2.5, 6.5):
+            x = cx + hw + 2 + dx
+            path(doc, 'M%s,%s q1.0,-0.8 2.0,0' % (fmt(x), fmt(apical(x) - LIN - 0.05)), stroke=FILM, w=0.35, op=0.8)
+
+
+def _damage(doc):
+    """Injured type I epithelium beneath the open cup: frayed, lifting cell, a denuded patch of basement membrane."""
+    d0, d1 = DAMAGE
+    s = surface
+    rnd = random.Random(21)
+    x = d0 + 6
+    while x < d1 - 6:
+        L = rnd.uniform(2.5, 5.5)
+        if not (938 <= x <= 958):
+            pts = [(x + u, s(x + u) + rnd.uniform(-0.25, 0.35)) for u in (0, L / 2, L)]
+            path(doc, poly_d(pts), stroke='#A2685D', w=0.6, op=0.9)
+        x += L + rnd.uniform(1.2, 2.6)
+    xs = _xs(938, 958, 1.0)
+    path(doc, poly_d([(x, s(x) - 0.2) for x in xs] + [(x, s(x) + 2.4) for x in xs[::-1]], True), fill='#F2E2D6')
+    path(doc, poly_d([(x, s(x) + 2.5) for x in xs]), stroke='#93685C', w=0.75, op=0.9)
+    for k in range(7):
+        x = rnd.uniform(939, 957)
+        circ(doc, x, s(x) + rnd.uniform(0.3, 1.8), rnd.uniform(0.35, 0.6), fill='#C9A3A8', op=0.7)
+    x0 = 958
+    flap = [(x0, s(x0) + 0.8), (x0 + 1.6, s(x0) - 2.4), (x0 + 6, s(x0 + 6) - 2.9), (x0 + 11, s(x0 + 11) - 0.5)]
+    path(doc, cr_path(flap, False) + ' L%s,%s Z' % (fmt(x0 + 1), fmt(s(x0) + 1.6)), fill='#F1D6CD', stroke='#A2685D', w=0.55)
+    path(doc, cr_path([(x0 + 1, s(x0) + 1.5), (x0 + 4, s(x0 + 4) - 0.2), (x0 + 9, s(x0 + 9) + 0.5)], False), stroke=EPI_LINE, w=0.35, op=0.6)
+    ell(doc, 925, s(925) + 1.3, 3.2, 1.25, fill='#7E6E92', op=0.8)
+    for (x, dy, r) in ((916, -1.2, 0.8), (931, -1.5, 0.7), (970, -1.2, 0.75), (979, -1.0, 0.6)):
+        circ(doc, x, s(x) + dy, r, fill='#F3DCD3', stroke=EPI_LINE, w=0.25)
+
+
+def _cell_contact(doc):
+    """Where the macrophage base rests on the lining fluid: a soft contact shadow on the epithelium."""
+    import wallgeom as WG
+    x0, x1 = WG.CELL_FOOT
+    xs = _xs(x0, x1, 3)
+    g = _ug(doc, 'linear', [(0, SHADOW, 0.0), (0.05, SHADOW, 0.08), (0.95, SHADOW, 0.08), (1, SHADOW, 0)], x1=x0, y1=0, x2=x1, y2=0)
+    top = [(x, surface(x) - 0.2) for x in xs]
+    bot = [(x, surface(x) + 1.6) for x in xs]
+    path(doc, poly_d(top + bot[::-1], True), fill=g)
+
+
+def _free_particle(doc):
+    """Particle fates vary: a silica crystal left free on the epithelium (not taken up)."""
+    x = 146
+    silica(doc, x, surface(x) - LIN - 2.9, s=0.42, rot=10)
+
+
+
+# ----------------------------------------------------------------------------------------- labels (healthy anatomy)
+def labels(doc):
+    c = LAB
+    sz = 4.6
+
+    def lab(x, y, text, tgt, anchor='start', col=c):
+        T(doc, x, y, text, size=sz, fill=col, anchor=anchor, italic=True, halo=PAPER)
+        tw = text_width(text, sz)
+        lx = x if anchor == 'start' else (x - tw if anchor == 'end' else x - tw / 2)
+        hx = min(max(tgt[0], lx + 2), lx + tw - 2)
+        end = (hx, y - sz * 0.92 - 1.0) if tgt[1] < y else (lx - 1.0, y - sz * 0.3)   # target below: meet the text's side
+        leader(doc, [tgt, end], color=col, w=0.28)
+
+    import marks
+    LABEL_POS.clear()
+    for name, (x, y, tx, ty, anchor) in LABELS.items():
+        lab(x, y, name, (tx, ty(tx)), anchor=anchor)
+    T(doc, 806, 817, 'collagen', size=sz, fill=c, italic=True, halo=TISSUE_F)     # on the fibrotic bundles
+    T(doc, 735, 848, 'interstitium (thickened)', size=sz, fill=c, italic=True, halo=TISSUE_F)
+    lab(126, 748, 'free', (143, surface(143) - 4.6), anchor='end')
+    cand = [h for h in _near_holes if 470 < h['c'][0] < 600 and 795 < h['c'][1] < 826]
+    if cand:
+        h = max(cand, key=lambda h: PA.area(h['poly']))
+        ax, ay = h['c'][0], h['c'][1] + 3
+    else:
+        ax, ay = ALV
+    marks.hand(doc, ax, ay, 'alveolus', size=9.5, fill='#5F8193', anchor='middle', halo='#EAF1F2', op=0.9)
+
+
+_cap_near = lambda x0: min(SEPT_CAPS, key=lambda cc: abs(cc[0] - x0))
+LABELS = {
+    'type I': (52, 799, 44, lambda x: wall_bottom(x) - 0.8, 'start'),
+    'type II': (TYPE2_LOW[0][0] - 8, 801, TYPE2_LOW[0][0], lambda x: wall_bottom(x) + 3.0, 'start'),
+    'capillary': (_cap_near(262)[0] - 10, 799, _cap_near(262)[0], lambda x: wall_bottom(x) - 3.6, 'start'),
+}
+LABEL_POS = {}
+ALV = (538, 812)
