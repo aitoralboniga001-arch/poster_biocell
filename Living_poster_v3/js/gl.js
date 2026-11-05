@@ -19,6 +19,22 @@ const GLFX = {
     try { gl = canvas.getContext('webgl2', { alpha: true, premultipliedAlpha: true, antialias: false, depth: false, stencil: false, preserveDrawingBuffer: false, powerPreference: 'high-performance' }); } catch (e) { gl = null; }
     if (!gl || /[?&]nogl\b/.test(location.search)) { canvas.style.display = 'none'; return false; }
     this.gl = gl;
+    if (!this._build()) return false;
+    // a GPU reset (driver hiccup, memory pressure, the GPU process restarting) loses the context: the SVG fallback
+    // carries the show meanwhile, and once the browser hands the context back everything is rebuilt and the GPU layer
+    // returns (it used to stay off for the rest of the show, every particle then drawn as SVG: a slide-show)
+    canvas.addEventListener('webglcontextlost', e => {
+      e.preventDefault(); this.ok = false; this.atlasReady = false; this._shown = false; canvas.style.visibility = 'hidden';
+    });
+    canvas.addEventListener('webglcontextrestored', () => {
+      this.data = null; this.n = 0; this.atlas = {};
+      if (this._build()) { canvas.style.display = ''; this.buildAtlas().catch(e => console.warn(e)); }
+    });
+    return true;
+  },
+  /** program, buffers and texture (at start, and again after a lost context is restored) */
+  _build() {
+    const gl = this.gl, canvas = this.cv;
     const vs = `#version 300 es
       precision highp float;
       layout(location=0) in vec2 aQ;
@@ -129,7 +145,6 @@ const GLFX = {
     this.tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, this.tex);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 0]));
     gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-    canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); this.ok = false; canvas.style.display = 'none'; });
     this.ok = true;
     return true;
   },

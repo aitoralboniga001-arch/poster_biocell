@@ -1,0 +1,347 @@
+   5.7 film1  intro  T=  2.0 fr=222 p95=  30.4 max=  192 heap= 10 dom=4057 lum=213.4 sd= 27.8 0000.jpg
+   7.9 film1  intro  T=  4.2 fr=152 p95=  25.2 max=   48 heap= 13 dom=4057 lum=210.6 sd= 29.6 0001.jpg
+  10.0 film1  intro  T=  6.3 fr=163 p95=  16.8 max=   75 heap= 13 dom=4057 lum=209.9 sd= 30.0 0002.jpg
+  12.1 film1  intro  T=  8.1 fr=111 p95=  58.3 max=  167 heap= 10 dom=4077 lum=197.3 sd= 33.4 0003.jpg
+  14.4 film1  intro  T= 10.2 fr=122 p95=  33.2 max=  150 heap= 14 dom=4077 lum=182.3 sd= 31.3 0004.jpg
+  16.5 film1  intro  T= 11.8 fr= 78 p95=  91.6 max=  359 heap=  8 dom=4077 lum=202.0 sd= 27.8 0005.jpg SLOW
+  18.8 film1  map    T=  0.2 fr=161 p95=  25.0 max=  200 heap=  6 dom=4083 lum=144.1 sd= 90.8 0006.jpg
+  20.9 film1  map    T=  2.3 fr=162 p95=  16.9 max=  134 heap=  9 dom=4133 lum=143.8 sd= 90.5 0007.jpg
+  23.0 film1  map    T=  4.4 fr=171 p95=  17.5 max=   58 heap= 14 dom=4139 lum=143.8 sd= 90.4 0008.jpg
+  25.1 film1  map    T=  6.4 fr=135 p95=  25.2 max=   58 heap= 16 dom=4141 lum=143.9 sd= 90.5 0009.jpg
+  27.2 film1  s1     T=  0.0 fr= 88 p95=  66.7 max=   92 heap= 11 dom=4170 lum=209.6 sd= 33.5 0010.jpg
+  29.7 film1  s1     T=  2.3 fr=149 p95=  41.3 max=  317 heap= 11 dom=4170 lum=200.5 sd= 34.2 0011.jpg SLOW
+  31.8 film1  s1     T=  4.8 fr=139 p95=  25.2 max=   83 heap= 11 dom=4173 lum=199.3 sd= 34.3 0012.jpg
+  34.0 film1  s1     T=  7.4 fr=173 p95=  16.8 max=   42 heap= 17 dom=4173 lum=198.6 sd= 34.1 0013.jpg
+  36.1 film1  s1     T=  9.8 fr=101 p95=  50.0 max=   92 heap= 14 dom=4173 lum=143.3 sd= 89.4 0014.jpg
+  38.2 film1  s1     T= 12.3 fr=246 p95=   8.6 max=   17 heap= 11 dom=4173 lum=143.1 sd= 89.6 0015.jpg
+  40.3 film1  s1     T= 14.8 fr=248 p95=   8.6 max=   25 heap= 18 dom=4173 lum=143.1 sd= 89.7 0016.jpg
+  42.3 film1  s1     T= 17.0 fr=114 p95=  33.4 max=  183 heap= 18 dom=4173 lum=133.4 sd= 83.1 0017.jpg
+  44.5 film1  s1     T= 19.6 fr=170 p95=  16.8 max=   67 heap= 19 dom=4174 lum=132.6 sd= 83.2 0018.jpg
+  46.8 film1  s1     T= 22.3 fr=190 p95=  25.2 max=   75 heap= 19 dom=4174 lum=135.7 sd= 84.8 0019.jpg
+  48.9 film1  s1     T= 24.8 fr=195 p95=  16.8 max=   75 heap= 18 dom=4174 lum=132.8 sd= 83.3 0020.jpg
+  51.1 film1  s1     T= 27.4 fr=183 p95=  17.5 max=   67 heap= 20 dom=4174 lum=143.3 sd= 89.5 0021.jpg
+  53.2 film1  s2     T=  0.0 fr= 78 p95=  58.5 max=  259 heap= 14 dom=4217 lum=189.0 sd= 27.9 0022.jpg
+  55.4 film1  s2     T=  2.4 fr=146 p95=  25.2 max=   83 heap= 29 dom=4219 lum=191.3 sd= 26.9 0023.jpg
+  57.5 film1  s2     T=  4.9 fr=155 p95=  24.9 max=   50 heap=  7 dom=4227 lum=191.6 sd= 27.3 0024.jpg
+  59.6 film1  s2     T=  7.4 fr=152 p95=  16.9 max=   33 heap= 24 dom=4227 lum=192.2 sd= 27.5 0025.jpg
+  61.8 film1  s2     T=  9.9 fr= 86 p95=  41.9 max=   75 heap= 33 dom=4236 lum=200.3 sd= 32.9 0026.jpg
+  63.9 film1  s2     T= 12.4 fr= 81 p95=  50.7 max=   76 heap= 16 dom=4240 lum=200.8 sd= 32.2 0027.jpg
+  66.1 film1  s2     T= 14.9 fr=107 p95=  41.9 max=   99 heap= 28 dom=4242 lum=200.2 sd= 32.9 0028.jpg
+  68.5 film1  s2     T= 17.5 fr= 73 p95=  66.5 max=  284 heap= 10 dom=4244 lum=192.6 sd= 28.8 0029.jpg
+  70.7 film1  s2     T= 20.1 fr=122 p95=  25.2 max=   59 heap= 30 dom=4246 lum=191.4 sd= 29.3 0030.jpg
+  72.8 film1  s2     T= 22.6 fr=141 p95=  24.9 max=   42 heap= 10 dom=4246 lum=194.1 sd= 30.4 0031.jpg
+  74.9 film1  s2     T= 25.1 fr=118 p95=  25.1 max=   67 heap=  8 dom=4255 lum=197.3 sd= 31.6 0032.jpg
+  77.1 film1  s2     T= 27.7 fr=125 p95=  25.1 max=   42 heap= 23 dom=4261 lum=196.9 sd= 32.4 0033.jpg
+  79.2 film1  s2     T= 30.2 fr=136 p95=  25.0 max=   42 heap= 12 dom=4261 lum=196.7 sd= 32.0 0034.jpg
+  81.3 film1  s2     T= 32.6 fr=107 p95=  41.5 max=  117 heap= 30 dom=4268 lum=188.3 sd= 26.2 0035.jpg
+  83.4 film1  s2     T= 35.2 fr=151 p95=  24.8 max=   33 heap=  8 dom=4268 lum=188.2 sd= 26.2 0036.jpg
+  85.6 film1  s2     T= 37.5 fr=105 p95=  35.1 max=  158 heap= 31 dom=4268 lum=188.6 sd= 26.6 0037.jpg
+  87.7 film1  s2     T= 40.1 fr=134 p95=  25.0 max=   33 heap=  9 dom=4345 lum=188.7 sd= 26.6 0038.jpg
+  89.8 film1  s2     T= 42.6 fr=120 p95=  25.0 max=   25 heap= 11 dom=4345 lum=189.1 sd= 26.3 0039.jpg
+  91.9 film1  s2     T= 45.2 fr=129 p95=  34.2 max=   66 heap= 27 dom=4406 lum=185.7 sd= 26.0 0040.jpg
+  94.1 film1  s2     T= 46.6 fr= 49 p95= 141.6 max=  375 heap= 10 dom=4408 lum=192.2 sd= 29.3 0041.jpg SLOW
+  97.1 film1  s2     T= 48.9 fr= 74 p95= 158.3 max=  633 heap= 17 dom=4408 lum=192.2 sd= 29.7 0042.jpg SLOW
+  99.3 film1  s2     T= 51.5 fr=109 p95=  33.3 max=   75 heap= 29 dom=4413 lum=187.5 sd= 32.3 0043.jpg
+ 101.5 film1  s2     T= 54.1 fr=117 p95=  25.2 max=   58 heap= 18 dom=4417 lum=185.1 sd= 32.0 0044.jpg
+ 103.6 film1  s2     T= 56.7 fr=126 p95=  25.1 max=   42 heap= 32 dom=4417 lum=185.1 sd= 32.3 0045.jpg
+ 105.7 film1  s2     T= 59.2 fr= 97 p95=  41.9 max=   95 heap= 11 dom=4422 lum=171.8 sd= 31.1 0046.jpg
+ 107.9 film1  s2     T= 61.6 fr=100 p95=  42.1 max=  171 heap= 26 dom=4424 lum=170.6 sd= 30.3 0047.jpg
+ 110.0 film1  s2     T= 64.2 fr=134 p95=  25.3 max=   50 heap= 14 dom=4426 lum=169.5 sd= 29.3 0048.jpg
+ 112.1 film1  s3     T=  0.0 fr= 97 p95=  58.2 max=  211 heap= 26 dom=4450 lum=159.4 sd= 66.0 0049.jpg
+ 115.1 film1  s3     T=  0.4 fr= 48 p95= 283.3 max=  400 heap= 32 dom=4450 lum=190.8 sd= 34.4 0050.jpg SLOW
+ 117.8 film1  s3     T=  2.6 fr=136 p95=  25.1 max=  600 heap=  9 dom=4459 lum=184.3 sd= 33.8 0051.jpg SLOW
+ 119.9 film1  s3     T=  5.1 fr=165 p95=  16.8 max=   34 heap= 29 dom=4463 lum=183.5 sd= 34.3 0052.jpg
+ 122.0 film1  s3     T=  7.5 fr=121 p95=  33.4 max=  217 heap= 16 dom=4465 lum=181.0 sd= 36.7 0053.jpg
+ 124.2 film1  s3     T=  9.8 fr=147 p95=  25.0 max=  158 heap= 32 dom=4467 lum=170.4 sd= 31.0 0054.jpg
+ 126.3 film1  s3     T= 12.3 fr=242 p95=   8.9 max=   17 heap= 13 dom=4467 lum=169.5 sd= 30.5 0055.jpg
+ 128.4 film1  s3     T= 14.7 fr=148 p95=  25.2 max=  117 heap= 29 dom=4476 lum=182.3 sd= 34.9 0056.jpg
+ 130.6 film1  s3     T= 17.3 fr=175 p95=  33.4 max=   83 heap= 20 dom=4476 lum=182.9 sd= 34.9 0057.jpg
+ 132.8 film1  s3     T= 19.4 fr=113 p95=  41.7 max=  408 heap= 31 dom=4478 lum=182.9 sd= 34.7 0058.jpg SLOW
+ 135.0 film1  s3     T= 21.1 fr= 48 p95= 141.8 max=  426 heap= 10 dom=4485 lum=181.2 sd= 32.4 0059.jpg SLOW
+ 137.5 film1  s3     T= 22.9 fr= 60 p95= 208.3 max=  542 heap= 12 dom=4487 lum=180.5 sd= 32.8 0060.jpg SLOW
+ 140.2 film1  s3     T= 24.9 fr= 96 p95= 116.5 max=  433 heap= 21 dom=4487 lum=180.0 sd= 33.1 0061.jpg SLOW
+ 142.4 film1  s3     T= 26.9 fr= 72 p95= 100.2 max=  217 heap=  8 dom=4496 lum=184.4 sd= 34.7 0062.jpg
+ 144.5 film1  s3     T= 29.2 fr=165 p95=  25.0 max=  267 heap= 24 dom=4496 lum=184.2 sd= 34.5 0063.jpg
+ 146.6 film1  s3     T= 31.1 fr=171 p95=  16.5 max=  117 heap= 14 dom=4496 lum=183.9 sd= 33.6 0064.jpg
+ 148.8 film1  s3     T= 33.5 fr= 91 p95=  58.4 max=  467 heap= 16 dom=4501 lum=178.0 sd= 32.5 0065.jpg SLOW
+ 150.9 film1  s3     T= 36.0 fr=223 p95=  16.7 max=   25 heap= 14 dom=4502 lum=177.2 sd= 32.6 0066.jpg
+ 153.1 film1  s3     T= 38.5 fr=133 p95=  33.2 max=   92 heap= 17 dom=4510 lum=178.8 sd= 32.9 0067.jpg
+ 155.6 film1  s3     T= 41.2 fr=215 p95=  18.7 max=  258 heap= 17 dom=4513 lum=179.0 sd= 32.6 0068.jpg
+ 157.7 film1  s3     T= 43.7 fr=193 p95=  19.5 max=   40 heap= 13 dom=4517 lum=179.3 sd= 32.6 0069.jpg
+ 159.9 film1  s3     T= 46.2 fr=117 p95=  33.4 max=  142 heap= 14 dom=4533 lum=188.8 sd= 32.3 0070.jpg
+ 162.0 film1  s3     T= 48.7 fr=220 p95=  16.7 max=   75 heap= 17 dom=4537 lum=187.9 sd= 31.4 0071.jpg
+ 164.1 film1  s3     T= 51.2 fr=186 p95=  16.8 max=   34 heap= 14 dom=4539 lum=185.9 sd= 31.9 0072.jpg
+ 166.2 film1  s3     T= 53.7 fr=135 p95=  25.1 max=   92 heap= 10 dom=4546 lum=184.3 sd= 35.4 0073.jpg
+ 168.3 film1  s3     T= 56.2 fr=194 p95=  16.8 max=   25 heap= 30 dom=4546 lum=184.5 sd= 36.1 0074.jpg
+ 170.4 film1  s3     T= 58.7 fr=132 p95=  33.2 max=   75 heap= 17 dom=4555 lum=186.5 sd= 34.1 0075.jpg
+ 172.6 film1  s3     T= 61.3 fr=179 p95=  17.0 max=   42 heap= 10 dom=4559 lum=187.0 sd= 34.5 0076.jpg
+ 174.7 film1  s3     T= 63.8 fr=159 p95=  24.9 max=   42 heap= 22 dom=4559 lum=187.1 sd= 34.3 0077.jpg
+ 176.8 film1  s4     T=  0.0 fr= 72 p95=  50.0 max=  283 heap= 30 dom=4593 lum=186.3 sd= 42.8 0078.jpg
+ 178.9 film1  s4     T=  1.3 fr= 72 p95=  75.0 max=   92 heap= 11 dom=4593 lum=180.5 sd= 33.1 0079.jpg
+ 181.1 film1  s4     T=  3.9 fr=184 p95=  16.8 max=   75 heap= 28 dom=4593 lum=181.3 sd= 32.7 0080.jpg
+ 183.2 film1  s4     T=  6.4 fr=153 p95=  33.2 max=   58 heap= 20 dom=4597 lum=193.9 sd= 35.2 0081.jpg
+ 185.3 film1  s4     T=  8.8 fr=102 p95=  52.2 max=  125 heap= 29 dom=4601 lum=189.6 sd= 35.0 0082.jpg
+ 187.5 film1  s4     T= 11.3 fr=156 p95=  24.9 max=   33 heap= 18 dom=4601 lum=189.0 sd= 35.8 0083.jpg
+ 189.5 film1  s4     T= 13.8 fr=108 p95=  41.6 max=   50 heap= 11 dom=4605 lum=166.9 sd= 36.3 0084.jpg
+ 192.4 film1  s4     T= 16.4 fr=136 p95=  33.2 max=  651 heap= 27 dom=4613 lum=163.4 sd= 33.9 0085.jpg SLOW
+ 194.5 film1  s4     T= 18.9 fr=151 p95=  25.0 max=   33 heap= 20 dom=4613 lum=163.7 sd= 34.2 0086.jpg
+ 196.7 film1  s4     T= 21.5 fr=122 p95=  26.4 max=   58 heap= 10 dom=4618 lum=165.4 sd= 31.4 0087.jpg
+ 198.9 film1  s4     T= 23.8 fr=152 p95=  29.1 max=  225 heap=  9 dom=4618 lum=164.3 sd= 31.4 0088.jpg
+ 201.0 film1  s4     T= 26.3 fr=206 p95=  16.7 max=   25 heap= 13 dom=4618 lum=163.3 sd= 31.6 0089.jpg
+ 203.1 film1  s4     T= 28.8 fr=163 p95=  17.0 max=   25 heap= 32 dom=4636 lum=155.4 sd= 27.9 0090.jpg
+ 205.2 film1  s4     T= 31.4 fr=201 p95=  16.8 max=   17 heap= 30 dom=4636 lum=154.9 sd= 27.6 0091.jpg
+ 207.3 film1  s4     T= 33.8 fr=175 p95=  25.0 max=   33 heap= 24 dom=4636 lum=165.7 sd= 25.3 0092.jpg
+ 209.6 film1  s4     T= 36.5 fr=190 p95=  25.0 max=  125 heap= 22 dom=4638 lum=171.6 sd= 27.5 0093.jpg
+ 211.7 film1  s27    T=  0.0 fr=136 p95=  50.0 max=   75 heap= 18 dom=4662 lum=177.7 sd= 25.7 0094.jpg
+ 214.0 film1  s27    T=  0.6 fr= 69 p95=  83.4 max=  167 heap= 29 dom=4662 lum=181.7 sd= 29.9 0095.jpg
+ 216.2 film1  s27    T=  3.1 fr=121 p95=  41.8 max=   83 heap= 23 dom=4670 lum=176.3 sd= 29.7 0096.jpg
+ 218.4 film1  s27    T=  5.8 fr=140 p95=  25.1 max=  100 heap= 22 dom=4670 lum=175.2 sd= 29.8 0097.jpg
+ 220.5 film1  s27    T=  8.3 fr= 94 p95=  42.4 max=   96 heap= 20 dom=4672 lum=172.0 sd= 27.7 0098.jpg
+ 222.7 film1  s27    T= 10.8 fr=123 p95=  36.7 max=   58 heap= 21 dom=4674 lum=171.5 sd= 28.7 0099.jpg
+ 224.8 film1  s27    T= 13.3 fr=153 p95=  16.9 max=   33 heap= 27 dom=4674 lum=171.6 sd= 28.9 0100.jpg
+ 226.9 film1  s27    T= 15.8 fr=129 p95=  25.1 max=  142 heap=  9 dom=4685 lum=173.6 sd= 30.8 0101.jpg
+ 229.0 film1  s27    T= 18.3 fr=174 p95=  16.8 max=   34 heap= 17 dom=4687 lum=171.1 sd= 29.7 0102.jpg
+ 231.1 film1  s27    T= 20.8 fr=165 p95=  25.0 max=   25 heap= 27 dom=4690 lum=165.8 sd= 28.4 0103.jpg
+ 233.3 film1  s27    T= 23.4 fr=140 p95=  25.2 max=   42 heap= 25 dom=4698 lum=162.2 sd= 25.7 0104.jpg
+ 235.4 film1  s27    T= 25.9 fr=168 p95=  17.6 max=   34 heap= 27 dom=4698 lum=162.2 sd= 25.7 0105.jpg
+ 237.5 film1  s27    T= 28.4 fr=107 p95=  41.7 max=   67 heap= 20 dom=4698 lum=159.3 sd= 31.0 0106.jpg
+ 239.6 film1  s27    T= 30.9 fr=104 p95=  33.5 max=   92 heap= 20 dom=5119 lum=161.1 sd= 31.0 0107.jpg
+ 241.8 film1  s27    T= 33.4 fr=106 p95=  33.3 max=   50 heap= 22 dom=5122 lum=166.7 sd= 27.4 0108.jpg
+ 244.0 film1  s27    T= 35.9 fr= 97 p95=  50.2 max=  108 heap= 18 dom=5126 lum=188.2 sd= 28.9 0109.jpg
+ 246.1 film1  s27    T= 37.9 fr= 52 p95=  91.8 max=  392 heap= 16 dom=5126 lum=198.0 sd= 29.8 0110.jpg SLOW
+ 248.4 film1  s27    T= 40.6 fr=176 p95=  25.1 max=   58 heap= 13 dom=5126 lum=196.6 sd= 39.6 0111.jpg
+ 250.5 film1  s5     T=  0.0 fr=165 p95=  33.3 max=   67 heap= 22 dom=5171 lum=194.7 sd= 34.8 0112.jpg
+ 252.6 film1  s5     T=  1.3 fr= 87 p95=  41.9 max=   83 heap= 10 dom=5171 lum=195.4 sd= 32.3 0113.jpg
+ 255.1 film1  s5     T=  3.9 fr=197 p95=  16.8 max=  400 heap= 27 dom=5173 lum=195.9 sd= 32.4 0114.jpg SLOW
+ 257.2 film1  s5     T=  6.0 fr=128 p95=  41.7 max=  292 heap= 18 dom=5173 lum=195.9 sd= 32.4 0115.jpg
+ 259.3 film1  s5     T=  8.5 fr=101 p95=  41.8 max=   67 heap= 32 dom=5182 lum=190.2 sd= 36.8 0116.jpg
+ 261.5 film1  s5     T= 11.1 fr=190 p95=  16.8 max=  100 heap= 13 dom=5184 lum=188.3 sd= 36.5 0117.jpg
+ 263.6 film1  s5     T= 13.6 fr=221 p95=  16.7 max=   25 heap= 19 dom=5184 lum=188.4 sd= 36.3 0118.jpg
+ 265.7 film1  s5     T= 16.1 fr=141 p95=  25.2 max=   50 heap= 17 dom=5188 lum=182.5 sd= 30.3 0119.jpg
+ 267.8 film1  s5     T= 18.3 fr=161 p95=  17.0 max=  317 heap= 15 dom=5188 lum=182.1 sd= 30.4 0120.jpg SLOW
+ 269.9 film1  s5     T= 20.8 fr=166 p95=  25.1 max=   42 heap= 10 dom=5195 lum=182.2 sd= 30.1 0121.jpg
+ 272.0 film1  s5     T= 23.3 fr=116 p95=  41.6 max=   84 heap= 31 dom=5200 lum=179.8 sd= 31.4 0122.jpg
+ 274.2 film1  s5     T= 25.9 fr=139 p95=  25.1 max=   50 heap= 28 dom=5204 lum=179.8 sd= 31.5 0123.jpg
+ 276.3 film1  s5     T= 28.4 fr=138 p95=  25.1 max=   33 heap= 24 dom=5204 lum=179.0 sd= 31.9 0124.jpg
+ 278.5 film1  s5     T= 30.9 fr= 98 p95=  41.8 max=  158 heap= 10 dom=5206 lum=184.9 sd= 29.9 0125.jpg
+ 280.6 film1  s5     T= 33.4 fr=187 p95=  16.7 max=   42 heap=  9 dom=5208 lum=185.5 sd= 29.9 0126.jpg
+ 282.7 film1  s5     T= 35.9 fr=127 p95=  25.2 max=   42 heap= 37 dom=5839 lum=185.1 sd= 29.6 0127.jpg
+ 284.9 film1  s5     T= 38.5 fr=121 p95=  33.4 max=   67 heap= 20 dom=5843 lum=174.9 sd= 26.5 0128.jpg
+ 287.1 film1  s5     T= 41.1 fr=182 p95=  16.9 max=  133 heap= 20 dom=5845 lum=177.6 sd= 25.4 0129.jpg
+ 289.2 film1  s5     T= 43.5 fr= 84 p95=  50.0 max=  108 heap= 31 dom=5852 lum=186.3 sd= 25.9 0130.jpg
+ 291.3 film1  s5     T= 46.0 fr=188 p95=  16.8 max=   33 heap= 31 dom=5852 lum=186.4 sd= 26.1 0131.jpg
+ 293.5 film1  s5     T= 48.5 fr=100 p95=  50.1 max=   59 heap= 20 dom=5854 lum=184.6 sd= 22.6 0132.jpg
+ 295.6 film1  s5     T= 51.1 fr=211 p95=  16.8 max=   58 heap= 12 dom=5856 lum=183.9 sd= 23.0 0133.jpg
+ 297.7 film1  s5     T= 53.6 fr=229 p95=  16.6 max=   25 heap= 18 dom=5869 lum=184.3 sd= 22.3 0134.jpg
+ 299.8 film1  s5     T= 55.6 fr= 53 p95=  91.5 max=  283 heap= 27 dom=5871 lum=195.0 sd= 37.8 0135.jpg
+ 302.0 film1  s5     T= 58.2 fr=161 p95=  33.3 max=   42 heap= 25 dom=5875 lum=194.7 sd= 41.4 0136.jpg
+ 304.1 film1  s5     T= 60.8 fr=177 p95=  16.8 max=   58 heap= 26 dom=5875 lum=194.3 sd= 41.2 0137.jpg
+ 306.2 film1  s5     T= 63.3 fr=177 p95=  16.8 max=   50 heap= 19 dom=5875 lum=194.2 sd= 41.2 0138.jpg
+ 308.3 film1  s5     T= 65.9 fr=192 p95=  16.7 max=   25 heap= 19 dom=5875 lum=194.2 sd= 41.1 0139.jpg
+ 310.4 film1  s6     T=  0.0 fr=121 p95=  33.3 max=   42 heap= 35 dom=5889 lum=158.0 sd= 84.7 0140.jpg
+ 312.6 film1  s6     T=  2.2 fr=165 p95=  25.0 max=   25 heap= 24 dom=5889 lum=145.0 sd= 86.4 0141.jpg
+ 314.7 film1  s6     T=  4.7 fr=239 p95=   9.1 max=   17 heap= 15 dom=5889 lum=145.1 sd= 86.6 0142.jpg
+ 316.7 film1  s6     T=  7.2 fr=238 p95=  16.3 max=   17 heap= 11 dom=5889 lum=145.0 sd= 86.6 0143.jpg
+ 318.8 film1  s6     T=  9.7 fr=233 p95=  16.6 max=   17 heap= 29 dom=5889 lum=140.9 sd= 88.0 0144.jpg
+ 320.9 film1  s6     T= 12.2 fr=228 p95=  16.5 max=   58 heap= 24 dom=5892 lum=140.5 sd= 87.9 0145.jpg
+ 323.0 film1  s6     T= 14.7 fr=250 p95=   8.6 max=    9 heap= 18 dom=5892 lum=140.5 sd= 87.8 0146.jpg
+ 325.1 film1  s6     T= 17.2 fr=248 p95=   8.7 max=   17 heap= 13 dom=5892 lum=140.4 sd= 87.8 0147.jpg
+ 327.2 film1  s6     T= 19.7 fr=246 p95=   8.5 max=   17 heap= 31 dom=5892 lum=140.5 sd= 88.0 0148.jpg
+ 329.3 film1  s6     T= 22.2 fr=241 p95=   8.6 max=   33 heap= 25 dom=5894 lum=140.3 sd= 87.9 0149.jpg
+ 331.6 film1  s6     T= 24.8 fr=244 p95=   8.8 max=  200 heap= 21 dom=5894 lum=140.2 sd= 87.9 0150.jpg
+ 333.7 film1  fin    T=  0.8 fr=176 p95=  16.7 max=  208 heap=  8 dom=5980 lum=132.6 sd= 95.2 0151.jpg
+ 336.3 film1  fin    T=  3.1 fr= 68 p95= 191.6 max=  292 heap= 14 dom=5982 lum=197.2 sd= 42.0 0152.jpg
+ 338.5 film1  fin    T=  5.3 fr= 53 p95=  92.0 max=  125 heap= 19 dom=5988 lum=212.1 sd= 27.3 0153.jpg
+ 340.7 film1  fin    T=  7.1 fr= 41 p95= 166.8 max=  242 heap= 22 dom=5988 lum=197.2 sd= 30.7 0154.jpg
+ 343.2 film1  fin    T=  9.3 fr= 48 p95= 150.0 max=  200 heap= 26 dom=5988 lum=204.2 sd= 25.9 0155.jpg
+ 345.6 film1  fin    T= 10.6 fr= 25 p95= 183.4 max=  192 heap=  9 dom=5988 lum=210.5 sd= 23.6 0156.jpg
+ 348.2 film1  fin    T= 12.2 fr= 28 p95= 175.0 max=  200 heap= 11 dom=5988 lum=210.4 sd= 23.8 0157.jpg
+ 350.8 film1  fin    T= 13.6 fr= 26 p95= 167.3 max=  192 heap= 13 dom=5988 lum=210.3 sd= 23.8 0158.jpg
+ 353.7 film1  fin    T= 15.1 fr= 26 p95= 216.6 max=  332 heap= 14 dom=5988 lum=210.1 sd= 24.0 0159.jpg SLOW
+ 356.5 film1  fin    T= 16.4 fr= 23 p95= 183.4 max=  250 heap= 16 dom=5988 lum=210.0 sd= 23.9 0160.jpg
+ 359.1 film1  fin    T= 18.0 fr= 27 p95= 158.4 max=  192 heap= 18 dom=5988 lum=210.1 sd= 23.9 0161.jpg
+ 361.7 film1  fin    T= 19.4 fr= 25 p95= 166.6 max=  200 heap= 20 dom=5988 lum=210.0 sd= 23.9 0162.jpg
+ 365.8 film1  fin    T= 19.9 fr= 11 p95=1283.4 max= 1283 heap= 20 dom=5988 lum=210.0 sd= 23.9 0163.jpg SLOW
+ 369.1 film1  fin    T= 20.6 fr= 13 p95=1175.4 max= 1175 heap= 21 dom=5988 lum=210.0 sd= 23.9 0164.jpg SLOW
+ 372.0 film1  fin    T= 21.9 fr= 23 p95= 250.0 max=  300 heap= 23 dom=5988 lum=210.0 sd= 23.9 0165.jpg
+ 374.7 gal1   -      T= 22.0 fr= 28 p95= 258.4 max=  542 heap= 35 dom=5990 lum=121.6 sd= 77.2 0166.jpg SLOW
+ 377.6 gal1   -      T= 22.0 fr=175 p95=  24.9 max=  992 heap= 35 dom=5991 lum=125.0 sd= 71.4 0167.jpg SLOW
+ 379.6 gal1   -      T= 22.0 fr=223 p95=  16.7 max=   33 heap= 16 dom=5991 lum=125.1 sd= 71.0 0168.jpg
+ 381.7 gal1   -      T= 22.0 fr=182 p95=  16.8 max=   75 heap= 37 dom=5991 lum=125.2 sd= 70.8 0169.jpg
+ 383.8 gal1   -      T= 22.0 fr=132 p95=  33.6 max=  218 heap= 12 dom=5991 lum=122.3 sd= 75.5 0170.jpg
+ 386.1 gal1   -      T= 22.0 fr= 95 p95=  91.6 max=  125 heap= 20 dom=5991 lum=124.1 sd= 80.1 0171.jpg
+ 388.3 gal1   -      T= 22.0 fr= 88 p95=  49.5 max=  125 heap= 25 dom=5991 lum=124.1 sd= 80.0 0172.jpg
+ 390.4 gal1   -      T= 22.0 fr=112 p95=  25.3 max=   42 heap= 12 dom=5991 lum=124.1 sd= 80.0 0173.jpg
+ 392.6 gal1   -      T= 22.0 fr= 74 p95=  66.7 max=  108 heap= 11 dom=5991 lum=121.0 sd= 77.5 0174.jpg
+ 394.9 film2  intro  T=  2.0 fr=116 p95=  49.3 max=  100 heap= 27 dom=5991 lum=213.4 sd= 27.8 0175.jpg
+ 397.0 film2  intro  T=  4.1 fr=140 p95=  25.0 max=   75 heap= 16 dom=5991 lum=210.7 sd= 29.6 0176.jpg
+ 399.2 film2  intro  T=  5.9 fr=128 p95=  32.1 max=  342 heap= 28 dom=5991 lum=210.0 sd= 29.9 0177.jpg SLOW
+ 401.4 film2  intro  T=  7.3 fr= 89 p95=  41.9 max=  216 heap= 10 dom=5991 lum=210.9 sd= 28.1 0178.jpg
+ 404.7 film2  intro  T=  8.4 fr= 29 p95= 491.6 max=  542 heap= 13 dom=5991 lum=186.5 sd= 38.1 0179.jpg SLOW
+ 407.3 film2  intro  T=  9.7 fr= 43 p95= 200.0 max=  284 heap=  9 dom=5991 lum= 25.6 sd=  6.2 0180.jpg FLAT
+ 409.6 film2  intro  T= 10.9 fr= 27 p95= 266.7 max=  292 heap=  8 dom=5991 lum= 25.1 sd=  8.3 0181.jpg FLAT
+ 412.2 film2  intro  T= 12.9 fr= 52 p95= 191.5 max=  217 heap=  9 dom=5991 lum= 42.5 sd= 57.3 0182.jpg
+ 414.4 film2  map    T=  1.5 fr=155 p95=  41.7 max=   56 heap= 10 dom=5991 lum= 40.3 sd= 53.6 0183.jpg
+ 416.5 film2  map    T=  3.6 fr=199 p95=  16.8 max=   58 heap= 15 dom=5991 lum= 40.2 sd= 53.4 0184.jpg
+ 418.7 film2  map    T=  5.8 fr=201 p95=  16.8 max=   26 heap= 14 dom=5991 lum= 40.1 sd= 53.3 0185.jpg
+ 420.8 film2  s1     T=  0.0 fr=119 p95=  33.3 max=   33 heap= 14 dom=5991 lum=102.3 sd= 97.8 0186.jpg
+ 422.9 film2  s1     T=  1.5 fr= 60 p95=  83.3 max=  109 heap= 13 dom=5991 lum= 33.3 sd= 19.8 0187.jpg
+ 425.5 film2  s1     T=  3.9 fr= 91 p95=  91.7 max=  333 heap= 15 dom=5991 lum= 36.4 sd= 29.5 0188.jpg SLOW
+ 427.9 film2  s1     T=  6.2 fr= 80 p95= 108.3 max=  167 heap= 10 dom=5991 lum= 32.5 sd= 32.3 0189.jpg
+ 430.1 film2  s1     T=  8.5 fr= 57 p95= 108.2 max=  125 heap= 11 dom=5991 lum=105.5 sd= 96.9 0190.jpg
+ 432.3 film2  s1     T= 11.1 fr=134 p95=  41.6 max=   50 heap=  9 dom=5991 lum= 42.3 sd= 53.7 0191.jpg
+ 434.4 film2  s1     T= 13.7 fr=235 p95=  16.7 max=   18 heap= 18 dom=5991 lum= 42.9 sd= 54.6 0192.jpg
+ 436.5 film2  s1     T= 16.1 fr=154 p95=  33.2 max=  142 heap= 10 dom=5991 lum=136.4 sd= 82.8 0193.jpg
+ 438.6 film2  s1     T= 18.6 fr=138 p95=  25.1 max=   67 heap= 21 dom=5991 lum=134.1 sd= 82.7 0194.jpg
+ 440.8 film2  s1     T= 21.2 fr=146 p95=  25.1 max=   33 heap= 16 dom=5991 lum=132.2 sd= 83.6 0195.jpg
+ 442.9 film2  s1     T= 23.8 fr=155 p95=  24.8 max=   33 heap= 18 dom=5991 lum=135.9 sd= 84.7 0196.jpg
+ 445.1 film2  s1     T= 26.3 fr=144 p95=  25.1 max=   33 heap= 19 dom=5991 lum=140.3 sd= 81.8 0197.jpg
+ 447.2 film2  s2     T=  0.0 fr=115 p95=  41.6 max=   50 heap= 21 dom=5991 lum=171.9 sd= 47.1 0198.jpg
+ 449.4 film2  s2     T=  1.4 fr= 50 p95=  83.2 max=  133 heap= 11 dom=5991 lum=191.3 sd= 27.7 0199.jpg
+ 451.6 film2  s2     T=  4.0 fr= 81 p95=  41.7 max=   59 heap= 20 dom=5991 lum=192.0 sd= 27.3 0200.jpg
+ 453.8 film2  s2     T=  6.6 fr= 93 p95=  33.4 max=   43 heap= 16 dom=5991 lum=192.9 sd= 27.0 0201.jpg
+ 455.9 film2  s2     T=  9.2 fr= 69 p95=  50.0 max=   67 heap= 11 dom=5991 lum=200.2 sd= 32.9 0202.jpg
+ 458.2 film2  s2     T= 11.8 fr= 78 p95=  41.7 max=   59 heap= 19 dom=5991 lum=199.7 sd= 32.7 0203.jpg
+ 460.3 film2  s2     T= 14.4 fr= 80 p95=  34.8 max=   58 heap= 15 dom=5991 lum=199.5 sd= 32.7 0204.jpg
+ 462.5 film2  s2     T= 17.0 fr= 73 p95=  41.7 max=   50 heap= 23 dom=5991 lum=194.4 sd= 29.5 0205.jpg
+ 464.7 film2  s2     T= 19.6 fr= 93 p95=  41.5 max=   42 heap= 21 dom=5991 lum=191.3 sd= 29.2 0206.jpg
+ 466.8 film2  s2     T= 22.2 fr= 97 p95=  33.3 max=   34 heap=  9 dom=5991 lum=191.2 sd= 29.0 0207.jpg
+ 468.9 film2  s2     T= 24.8 fr= 74 p95=  41.7 max=   42 heap= 12 dom=5991 lum=197.2 sd= 31.0 0208.jpg
+ 471.1 film2  s2     T= 27.3 fr= 79 p95=  41.6 max=   77 heap= 21 dom=5991 lum=196.7 sd= 31.6 0209.jpg
+ 473.2 film2  s2     T= 29.8 fr= 84 p95=  40.8 max=   67 heap= 19 dom=5991 lum=196.6 sd= 31.9 0210.jpg
+ 475.4 film2  s2     T= 32.4 fr= 69 p95=  58.2 max=   83 heap= 14 dom=5991 lum=188.3 sd= 26.4 0211.jpg
+ 477.6 film2  s2     T= 35.0 fr=101 p95=  33.4 max=   50 heap= 20 dom=5991 lum=188.6 sd= 26.4 0212.jpg
+ 479.7 film2  s2     T= 37.6 fr= 99 p95=  33.4 max=   42 heap= 13 dom=5991 lum=189.4 sd= 26.5 0213.jpg
+ 481.9 film2  s2     T= 40.2 fr= 76 p95=  41.9 max=   67 heap= 11 dom=5991 lum=189.7 sd= 26.5 0214.jpg
+ 484.1 film2  s2     T= 42.8 fr= 85 p95=  33.7 max=   42 heap= 26 dom=5991 lum=189.4 sd= 26.4 0215.jpg
+ 486.3 film2  s2     T= 45.4 fr=103 p95=  33.3 max=   50 heap= 11 dom=5991 lum=183.7 sd= 25.0 0216.jpg
+ 488.4 film2  s2     T= 47.9 fr= 61 p95=  50.1 max=  100 heap= 17 dom=5991 lum=191.1 sd= 29.8 0217.jpg
+ 490.8 film2  s2     T= 50.6 fr= 85 p95=  41.7 max=  192 heap= 25 dom=5991 lum=181.4 sd= 28.1 0218.jpg
+ 493.1 film2  s2     T= 53.3 fr= 81 p95=  41.7 max=  124 heap= 33 dom=5991 lum=185.3 sd= 32.3 0219.jpg
+ 495.3 film2  s2     T= 55.8 fr= 90 p95=  33.5 max=   67 heap= 17 dom=5991 lum=185.1 sd= 32.2 0220.jpg
+ 497.5 film2  s2     T= 58.4 fr= 84 p95=  40.7 max=   51 heap= 26 dom=5991 lum=172.8 sd= 31.6 0221.jpg
+ 499.7 film2  s2     T= 61.1 fr= 88 p95=  33.4 max=   34 heap= 35 dom=5991 lum=171.1 sd= 30.6 0222.jpg
+ 501.8 film2  s2     T= 63.7 fr= 93 p95=  33.4 max=   50 heap= 10 dom=5991 lum=169.9 sd= 29.7 0223.jpg
+ 504.0 film2  s3     T=  0.0 fr= 84 p95=  49.9 max=  125 heap= 19 dom=5991 lum=179.3 sd= 26.5 0224.jpg
+ 506.4 film2  s3     T=  0.1 fr= 44 p95= 149.5 max=  175 heap= 24 dom=5991 lum=192.7 sd= 34.0 0225.jpg
+ 509.2 film2  s3     T=  2.9 fr= 81 p95=  50.0 max=  483 heap= 33 dom=5991 lum=184.1 sd= 34.0 0226.jpg SLOW
+ 511.4 film2  s3     T=  5.4 fr= 66 p95=  58.3 max=   66 heap= 15 dom=5991 lum=183.1 sd= 34.8 0227.jpg
+ 513.5 film2  s3     T=  8.0 fr= 68 p95=  58.1 max=   67 heap= 22 dom=5991 lum=181.8 sd= 35.4 0228.jpg
+ 515.7 film2  s3     T= 10.2 fr= 63 p95=  58.4 max=  292 heap= 30 dom=5991 lum=172.0 sd= 30.8 0229.jpg
+ 517.8 film2  s3     T= 12.7 fr=118 p95=  25.2 max=   33 heap= 17 dom=5991 lum=172.9 sd= 31.7 0230.jpg
+ 520.0 film2  s3     T= 15.3 fr= 88 p95=  50.2 max=  100 heap= 26 dom=5991 lum=181.9 sd= 35.5 0231.jpg
+ 522.2 film2  s3     T= 17.8 fr=122 p95=  25.2 max=   33 heap= 13 dom=5991 lum=181.2 sd= 35.8 0232.jpg
+ 524.3 film2  s3     T= 20.4 fr=101 p95=  33.4 max=   42 heap= 16 dom=5991 lum=180.8 sd= 33.0 0233.jpg
+ 526.4 film2  s3     T= 22.9 fr= 87 p95=  33.5 max=   55 heap= 26 dom=5991 lum=180.5 sd= 33.0 0234.jpg
+ 528.6 film2  s3     T= 25.5 fr=106 p95=  33.4 max=   50 heap= 11 dom=5991 lum=182.6 sd= 34.9 0235.jpg
+ 530.8 film2  s3     T= 28.2 fr=108 p95=  41.5 max=   60 heap= 21 dom=5991 lum=184.0 sd= 34.6 0236.jpg
+ 533.0 film2  s3     T= 30.7 fr=142 p95=  24.9 max=   34 heap=  9 dom=5991 lum=183.9 sd= 34.3 0237.jpg
+ 535.1 film2  s3     T= 33.3 fr= 98 p95=  33.4 max=   50 heap= 20 dom=5991 lum=178.1 sd= 32.8 0238.jpg
+ 537.2 film2  s3     T= 35.8 fr=139 p95=  25.0 max=   25 heap= 34 dom=5991 lum=177.1 sd= 32.9 0239.jpg
+ 539.3 film2  s3     T= 38.4 fr=100 p95=  33.4 max=   34 heap= 19 dom=5991 lum=179.8 sd= 33.0 0240.jpg
+ 541.5 film2  s3     T= 41.0 fr=108 p95=  33.4 max=   67 heap= 21 dom=5991 lum=180.8 sd= 32.2 0241.jpg
+ 543.6 film2  s3     T= 43.5 fr= 93 p95=  33.5 max=   41 heap= 32 dom=5991 lum=179.7 sd= 32.3 0242.jpg
+ 545.8 film2  s3     T= 45.6 fr= 56 p95=  91.8 max=  225 heap= 11 dom=5991 lum=187.7 sd= 32.4 0243.jpg
+ 548.0 film2  s3     T= 48.2 fr= 88 p95=  33.5 max=   42 heap= 22 dom=5991 lum=186.2 sd= 32.5 0244.jpg
+ 550.2 film2  s3     T= 50.9 fr= 86 p95=  43.7 max=   75 heap= 34 dom=5991 lum=186.1 sd= 32.5 0245.jpg
+ 552.4 film2  s3     T= 53.4 fr= 89 p95=  41.6 max=   58 heap= 18 dom=5991 lum=184.3 sd= 35.7 0246.jpg
+ 554.5 film2  s3     T= 56.0 fr=106 p95=  33.1 max=   34 heap= 30 dom=5991 lum=184.7 sd= 35.9 0247.jpg
+ 556.6 film2  s3     T= 58.4 fr= 76 p95=  41.8 max=  108 heap= 11 dom=5991 lum=186.3 sd= 33.2 0248.jpg
+ 558.9 film2  s3     T= 61.1 fr= 81 p95=  33.7 max=   83 heap= 20 dom=5991 lum=187.3 sd= 34.3 0249.jpg
+ 561.0 film2  s3     T= 63.7 fr= 93 p95=  33.4 max=   42 heap= 13 dom=5991 lum=187.4 sd= 34.1 0250.jpg
+ 563.2 film2  s4     T=  0.0 fr= 47 p95=  91.7 max=  400 heap= 18 dom=5991 lum=177.5 sd= 53.5 0251.jpg SLOW
+ 565.5 film2  s4     T=  0.8 fr= 41 p95= 116.6 max=  234 heap= 22 dom=5991 lum=183.5 sd= 34.7 0252.jpg
+ 567.8 film2  s4     T=  3.4 fr= 78 p95=  42.1 max=  108 heap= 30 dom=5991 lum=182.7 sd= 32.5 0253.jpg
+ 570.0 film2  s4     T=  6.0 fr= 78 p95=  49.9 max=   67 heap= 11 dom=5991 lum=187.0 sd= 34.4 0254.jpg
+ 572.2 film2  s4     T=  8.6 fr= 59 p95=  67.0 max=   83 heap= 17 dom=5991 lum=187.7 sd= 35.3 0255.jpg
+ 574.6 film2  s4     T= 11.1 fr= 65 p95=  58.3 max=  175 heap= 23 dom=5991 lum=187.7 sd= 36.1 0256.jpg
+ 576.9 film2  s4     T= 13.8 fr= 74 p95=  50.2 max=   67 heap= 31 dom=5991 lum=166.4 sd= 35.8 0257.jpg
+ 579.0 film2  s4     T= 16.4 fr= 86 p95=  41.5 max=   50 heap= 16 dom=5991 lum=163.4 sd= 33.8 0258.jpg
+ 581.2 film2  s4     T= 19.0 fr= 83 p95=  41.6 max=   50 heap= 17 dom=5991 lum=163.8 sd= 34.0 0259.jpg
+ 583.4 film2  s4     T= 21.6 fr= 80 p95=  41.4 max=   50 heap= 29 dom=5991 lum=165.1 sd= 31.5 0260.jpg
+ 585.6 film2  s4     T= 24.2 fr=104 p95=  33.3 max=   50 heap= 20 dom=5991 lum=163.7 sd= 31.8 0261.jpg
+ 587.7 film2  s4     T= 26.8 fr=104 p95=  33.3 max=   34 heap= 34 dom=5991 lum=158.5 sd= 26.6 0262.jpg
+ 589.9 film2  s4     T= 29.4 fr= 98 p95=  33.4 max=   41 heap= 18 dom=5991 lum=154.4 sd= 27.7 0263.jpg
+ 592.0 film2  s4     T= 31.9 fr=111 p95=  33.3 max=   42 heap= 16 dom=5991 lum=156.5 sd= 27.6 0264.jpg
+ 594.2 film2  s4     T= 34.2 fr= 70 p95=  83.4 max=  125 heap= 24 dom=5991 lum=171.6 sd= 25.5 0265.jpg
+ 596.4 film2  s4     T= 36.9 fr= 85 p95=  41.7 max=   59 heap= 35 dom=5991 lum=172.5 sd= 27.1 0266.jpg
+ 598.6 film2  s27    T=  0.0 fr= 71 p95=  58.3 max=   67 heap= 18 dom=5991 lum=180.3 sd= 27.7 0267.jpg
+ 600.8 film2  s27    T=  1.0 fr= 50 p95= 108.5 max=  158 heap= 26 dom=5991 lum=176.1 sd= 30.4 0268.jpg
+ 603.1 film2  s27    T=  3.6 fr= 78 p95=  49.7 max=   76 heap= 12 dom=5991 lum=174.0 sd= 30.0 0269.jpg
+ 605.3 film2  s27    T=  6.2 fr= 88 p95=  33.4 max=   67 heap= 26 dom=5991 lum=173.9 sd= 29.9 0270.jpg
+ 607.4 film2  s27    T=  8.8 fr= 75 p95=  42.1 max=   50 heap= 12 dom=5991 lum=171.7 sd= 28.5 0271.jpg
+ 609.6 film2  s27    T= 11.4 fr= 94 p95=  33.4 max=   33 heap=  8 dom=5991 lum=171.7 sd= 28.8 0272.jpg
+ 611.7 film2  s27    T= 14.0 fr= 90 p95=  33.4 max=   42 heap= 26 dom=5991 lum=172.7 sd= 28.1 0273.jpg
+ 613.9 film2  s27    T= 16.6 fr= 77 p95=  49.9 max=   67 heap= 17 dom=5991 lum=173.5 sd= 30.4 0274.jpg
+ 616.1 film2  s27    T= 19.2 fr= 93 p95=  33.4 max=   67 heap= 10 dom=5991 lum=170.6 sd= 29.4 0275.jpg
+ 618.3 film2  s27    T= 21.8 fr= 78 p95=  43.2 max=   59 heap= 24 dom=5991 lum=162.8 sd= 24.8 0276.jpg
+ 620.5 film2  s27    T= 24.5 fr= 83 p95=  41.6 max=   50 heap= 12 dom=5991 lum=164.2 sd= 25.0 0277.jpg
+ 622.7 film2  s27    T= 27.0 fr= 79 p95=  41.8 max=   50 heap= 26 dom=5991 lum=164.4 sd= 29.5 0278.jpg
+ 624.9 film2  s27    T= 29.6 fr= 53 p95=  66.8 max=   75 heap=  9 dom=5991 lum=158.3 sd= 31.5 0279.jpg
+ 627.1 film2  s27    T= 32.1 fr= 55 p95=  75.0 max=   83 heap= 21 dom=5991 lum=158.2 sd= 30.9 0280.jpg
+ 629.3 film2  s27    T= 34.4 fr= 56 p95=  58.3 max=   67 heap= 33 dom=5991 lum=183.3 sd= 27.6 0281.jpg
+ 631.5 film2  s27    T= 36.8 fr= 54 p95= 116.6 max=  242 heap= 18 dom=5991 lum=190.8 sd= 29.2 0282.jpg
+ 633.9 film2  s27    T= 39.5 fr= 63 p95=  66.9 max=   92 heap= 11 dom=5991 lum=196.0 sd= 40.6 0283.jpg
+ 636.1 film2  s5     T=  0.0 fr=108 p95=  33.4 max=   75 heap= 34 dom=5991 lum=195.0 sd= 34.9 0284.jpg
+ 638.3 film2  s5     T=  0.3 fr= 50 p95=  66.7 max=   75 heap= 16 dom=5991 lum=195.5 sd= 33.2 0285.jpg
+ 640.5 film2  s5     T=  3.0 fr= 86 p95=  41.8 max=   67 heap= 29 dom=5991 lum=196.1 sd= 32.5 0286.jpg
+ 642.7 film2  s5     T=  5.6 fr=102 p95=  33.4 max=   50 heap= 16 dom=5991 lum=196.2 sd= 32.5 0287.jpg
+ 644.8 film2  s5     T=  8.1 fr= 75 p95=  42.2 max=   50 heap= 26 dom=5991 lum=191.8 sd= 36.9 0288.jpg
+ 647.0 film2  s5     T= 10.7 fr= 89 p95=  33.4 max=   42 heap= 14 dom=5991 lum=188.3 sd= 37.3 0289.jpg
+ 649.1 film2  s5     T= 13.3 fr=118 p95=  25.1 max=   42 heap= 33 dom=5991 lum=189.1 sd= 37.0 0290.jpg
+ 651.2 film2  s5     T= 15.8 fr= 79 p95=  41.7 max=   58 heap= 18 dom=5991 lum=183.7 sd= 29.6 0291.jpg
+ 653.4 film2  s5     T= 18.4 fr=100 p95=  33.4 max=   50 heap= 34 dom=5991 lum=183.4 sd= 29.8 0292.jpg
+ 655.5 film2  s5     T= 21.0 fr= 93 p95=  41.6 max=   42 heap= 22 dom=5991 lum=182.3 sd= 30.0 0293.jpg
+ 657.7 film2  s5     T= 23.6 fr= 76 p95=  41.8 max=   50 heap= 34 dom=5991 lum=179.0 sd= 31.6 0294.jpg
+ 659.8 film2  s5     T= 26.1 fr= 78 p95=  42.1 max=   61 heap= 19 dom=5991 lum=178.4 sd= 31.6 0295.jpg
+ 662.0 film2  s5     T= 28.7 fr= 77 p95=  41.6 max=   50 heap= 31 dom=5991 lum=179.2 sd= 31.4 0296.jpg
+ 664.2 film2  s5     T= 31.3 fr= 78 p95=  50.0 max=   75 heap= 14 dom=5991 lum=185.4 sd= 29.6 0297.jpg
+ 666.4 film2  s5     T= 33.9 fr= 82 p95=  41.7 max=   52 heap=  9 dom=5991 lum=186.9 sd= 30.1 0298.jpg
+ 668.7 film2  s5     T= 36.5 fr= 58 p95=  75.0 max=   91 heap= 21 dom=5991 lum=176.7 sd= 28.0 0299.jpg
+ 670.9 film2  s5     T= 39.2 fr= 73 p95=  50.4 max=   58 heap= 32 dom=5991 lum=174.2 sd= 26.6 0300.jpg
+ 673.2 film2  s5     T= 41.8 fr= 80 p95=  41.8 max=   83 heap= 17 dom=5991 lum=181.5 sd= 24.5 0301.jpg
+ 675.3 film2  s5     T= 44.3 fr= 63 p95=  74.8 max=  108 heap= 26 dom=5991 lum=187.0 sd= 26.2 0302.jpg
+ 677.5 film2  s5     T= 46.9 fr= 86 p95=  41.7 max=   67 heap= 12 dom=5991 lum=187.1 sd= 26.1 0303.jpg
+ 679.7 film2  s5     T= 49.4 fr= 66 p95=  57.7 max=  117 heap= 21 dom=5991 lum=184.9 sd= 22.6 0304.jpg
+ 681.9 film2  s5     T= 51.9 fr=111 p95=  33.1 max=   34 heap= 17 dom=5991 lum=184.3 sd= 22.2 0305.jpg
+ 684.0 film2  s5     T= 54.4 fr= 91 p95=  49.9 max=   75 heap= 31 dom=5991 lum=188.5 sd= 25.1 0306.jpg
+ 686.3 film2  s5     T= 57.1 fr= 70 p95=  58.3 max=   67 heap= 16 dom=5991 lum=194.3 sd= 41.6 0307.jpg
+ 688.5 film2  s5     T= 59.6 fr= 83 p95=  41.5 max=  150 heap= 29 dom=5991 lum=194.1 sd= 41.6 0308.jpg
+ 690.7 film2  s5     T= 62.2 fr= 85 p95=  41.8 max=   64 heap= 15 dom=5991 lum=194.0 sd= 41.4 0309.jpg
+ 692.8 film2  s5     T= 64.8 fr= 88 p95=  41.6 max=   42 heap= 27 dom=5991 lum=194.3 sd= 41.2 0310.jpg
+ 695.0 film2  s6     T=  0.0 fr= 84 p95=  50.0 max=   59 heap= 12 dom=5991 lum=189.5 sd= 58.4 0311.jpg
+ 697.2 film2  s6     T=  1.2 fr= 74 p95=  50.1 max=   58 heap= 19 dom=5991 lum=143.7 sd= 87.9 0312.jpg
+ 699.3 film2  s6     T=  3.7 fr=136 p95=  25.0 max=   33 heap= 16 dom=5991 lum=145.1 sd= 86.8 0313.jpg
+ 701.4 film2  s6     T=  6.3 fr=154 p95=  25.0 max=   33 heap= 28 dom=5991 lum=145.1 sd= 86.8 0314.jpg
+ 703.5 film2  s6     T=  8.8 fr=154 p95=  17.0 max=   25 heap= 14 dom=5991 lum=141.1 sd= 88.0 0315.jpg
+ 705.6 film2  s6     T= 11.3 fr=168 p95=  17.1 max=   25 heap= 29 dom=5991 lum=140.4 sd= 88.0 0316.jpg
+ 707.8 film2  s6     T= 13.9 fr=178 p95=  16.8 max=   25 heap= 20 dom=5991 lum=140.4 sd= 87.9 0317.jpg
+ 709.9 film2  s6     T= 16.4 fr=196 p95=  16.8 max=   17 heap=  9 dom=5991 lum=140.3 sd= 87.7 0318.jpg
+ 712.0 film2  s6     T= 18.9 fr=195 p95=  16.8 max=   25 heap= 24 dom=5991 lum=140.3 sd= 87.7 0319.jpg
+ 714.1 film2  s6     T= 21.4 fr=187 p95=  16.8 max=   25 heap= 14 dom=5991 lum=140.5 sd= 87.9 0320.jpg
+ 716.2 film2  s6     T= 24.0 fr=177 p95=  17.1 max=   46 heap= 30 dom=5991 lum=140.3 sd= 87.9 0321.jpg
+ 718.3 film2  fin    T=  0.5 fr=183 p95=  16.8 max=   25 heap= 11 dom=5991 lum=143.4 sd= 89.9 0322.jpg
+ 720.4 film2  fin    T=  2.6 fr= 65 p95=  83.4 max=  156 heap= 16 dom=5991 lum=202.0 sd= 39.5 0323.jpg
+ 722.6 film2  fin    T=  4.9 fr= 58 p95=  83.5 max=  133 heap= 21 dom=5991 lum=204.9 sd= 35.9 0324.jpg
+ 724.9 film2  fin    T=  6.8 fr= 42 p95=  91.6 max=  158 heap= 24 dom=5991 lum=200.3 sd= 29.0 0325.jpg
+ 727.3 film2  fin    T=  8.3 fr= 27 p95= 224.6 max=  483 heap= 26 dom=5991 lum=203.0 sd= 27.3 0326.jpg SLOW
+ 729.8 film2  fin    T= 10.1 fr= 34 p95= 158.3 max=  234 heap=  9 dom=5991 lum=210.4 sd= 23.6 0327.jpg
+ 732.7 film2  fin    T= 11.6 fr= 25 p95= 191.6 max=  333 heap= 10 dom=5991 lum=210.4 sd= 23.7 0328.jpg SLOW
+ 735.4 film2  fin    T= 12.8 fr= 23 p95= 191.4 max=  200 heap= 12 dom=5991 lum=210.3 sd= 23.8 0329.jpg
+ 738.1 film2  fin    T= 14.2 fr= 24 p95= 225.2 max=  242 heap= 14 dom=5991 lum=210.2 sd= 23.9 0330.jpg
+ 740.8 film2  fin    T= 15.6 fr= 24 p95= 133.9 max=  233 heap= 15 dom=5991 lum=210.1 sd= 24.0 0331.jpg
+ 743.7 film2  fin    T= 16.9 fr= 24 p95= 208.3 max=  267 heap= 17 dom=5991 lum=210.0 sd= 23.9 0332.jpg
+ 746.4 film2  fin    T= 18.3 fr= 25 p95= 183.3 max=  200 heap= 19 dom=5991 lum=210.0 sd= 23.9 0333.jpg
+ 749.0 film2  fin    T= 19.7 fr= 25 p95= 183.3 max=  209 heap= 20 dom=5991 lum=210.1 sd= 23.9 0334.jpg
+ 751.8 film2  fin    T= 21.0 fr= 24 p95= 216.6 max=  250 heap= 22 dom=5991 lum=210.1 sd= 23.9 0335.jpg
+ 754.6 film2  -      T= 22.0 fr= 35 p95= 208.3 max=  217 heap= 30 dom=5991 lum=125.7 sd= 80.1 0336.jpg
+ 756.8 gal2   -      T= 22.0 fr=107 p95=  47.4 max=   92 heap= 28 dom=5991 lum=123.9 sd= 79.9 0337.jpg
+ 759.1 gal2   -      T= 22.0 fr=143 p95=  17.0 max=  250 heap= 25 dom=5991 lum=124.1 sd= 80.1 0338.jpg
+ 761.2 gal2   -      T= 22.0 fr=128 p95=  25.0 max=   26 heap= 17 dom=5991 lum=124.0 sd= 80.1 0339.jpg
+ 763.3 gal2   -      T= 22.0 fr=142 p95=  24.8 max=   25 heap= 14 dom=5991 lum=123.7 sd= 80.1 0340.jpg
+ 765.4 gal2   -      T= 22.0 fr=145 p95=  25.0 max=   58 heap= 33 dom=5991 lum=120.0 sd= 76.9 0341.jpg
+ 767.6 gal2   -      T= 22.0 fr=155 p95=  17.3 max=   83 heap= 24 dom=5991 lum=119.7 sd= 76.7 0342.jpg
+ 769.7 gal2   -      T= 22.0 fr=176 p95=  16.8 max=   25 heap= 18 dom=5991 lum=119.5 sd= 76.7 0343.jpg
+ 771.8 gal2   -      T= 22.0 fr=143 p95=  24.9 max=   25 heap= 20 dom=5991 lum=120.3 sd= 75.2 0344.jpg
+ 773.9 gal2   -      T= 22.0 fr=142 p95=  25.0 max=   33 heap= 30 dom=5991 lum=122.6 sd= 73.1 0345.jpg
+ 776.0 gal2   -      T= 22.0 fr=150 p95=  17.0 max=   25 heap= 15 dom=5991 lum=122.5 sd= 73.2 0346.jpg

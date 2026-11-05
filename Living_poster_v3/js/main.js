@@ -389,7 +389,7 @@ const Loupe = {
     }
     if (!on && Lp.k < 0.004) { Lp.k = 0; Lp.kv = 0; }
     const k = Lp.k, ko = clamp(k);
-    if (k < 0.01) { show(this.g, false); show(this.top, false); this.lens = null; this._direct(false); return null; }
+    if (k < 0.01) { this.off(); return null; }
     show(this.g, true); show(this.top, true);
     const s = R0 / 40, grow = 0.6 + 0.4 * k, rc = R0 * grow;
     this.lens = { x, y, r: rc, mag };
@@ -430,6 +430,15 @@ const Loupe = {
     return [x - r, y - r, x + r, y + r];
   },
   _flowOff() { this.flowG.removeAttribute('filter'); this.flowG.removeAttribute('transform'); this.flowS.removeAttribute('transform'); this.flowG = null; },
+  /** the glass is down: hide it and take everything it put on the sheet back off. The fluid filter in particular must
+   *  go: its region is a small box round the glass, so left on the world group it crops the whole poster to that box
+   *  (the black screen with a small square of poster after the gallery hands over to the film) and costs a full
+   *  filter pass every frame */
+  off() {
+    show(this.g, false); show(this.top, false); this.lens = null;
+    if (this.flowG) this._flowOff();
+    this._direct(false);
+  },
   /** switch the live sheet in / out of the glass */
   _direct(on) {
     if (this.isDirect === on) return;
@@ -552,10 +561,20 @@ function frame(now) {
       if (App.T >= s.dur - 1e-6 && (App.mode === 'film' || s.autoNext)) goSection(nextIdx(s));
     }
   }
-  // a slip in one scene must never freeze the show: log it once and keep the loop alive
-  try { render(dt); } catch (e) { if (!App._err) { console.error(e); App._err = true; } }
+  // a slip in one scene must never freeze the show: log it and keep the loop alive
+  try { render(dt); } catch (e) { slip('frame', e); }
   requestAnimationFrame(frame);
 }
+/** log an error once per distinct message (a hook that throws every frame would otherwise flood the console) */
+function slip(tag, e) {
+  const m = tag + ': ' + (e && e.message || e), S = App._errs || (App._errs = new Set());
+  App._err = true;
+  if (!S.has(m) && S.size < 50) { S.add(m); console.error(m, e); }
+}
+/** run one scene hook: if it throws, that hook alone is skipped this frame (logged once) and the frame's own
+ *  bookkeeping (hiding what was not drawn, the camera, the GPU pass) still runs, so nothing is left frozen on screen */
+function guard(tag, f) { try { return f(); } catch (e) { slip(tag, e); return undefined; } }
+const finiteCam = c => !!c && c.length >= 3 && isFinite(c[0]) && isFinite(c[1]) && isFinite(c[2]) && c[2] > 1e-6;
 
 /** exact step of a critically damped spring (x'' = w^2 (target - x) - 2 w x'): stable for any dt */
 function cdStep(x, v, target, w, dt) {
@@ -584,15 +603,19 @@ function render(dt) {
   // ---- the camera the story wants
   let want, world = 'poster';
   if (s && s.world === 'body') {
-    const r = s.drawBody(T, A, Cam.aspect);
-    want = r.cam; world = r.world;
-  } else if (s) want = s.cam(T, A);
+    const r = guard('drawBody ' + s.id, () => s.drawBody(T, A, Cam.aspect));
+    if (r) { want = r.cam; world = r.world; } else world = App.world;
+  } else if (s) want = guard('cam ' + s.id, () => s.cam(T, A));
   else want = App.mode === 'play' ? Cam.fromRect([-10, 90, 700, 620]) : GALLERY_CAM();
+  // a camera that came out non-finite (NaN from a degenerate path) would blank the whole view: hold the last good one
+  if (!finiteCam(want)) want = finiteCam(App.cam) ? App.cam.slice() : GALLERY_CAM();
   if (App.blend && App.blend.fromWorld === world) {
-    const b = App.blend, k = clamp((A - b.t0) / b.dur), t = A - b.t0;
+    const b = App.blend, k = clamp((A - b.t0) / b.dur);
     if (k >= 1) App.blend = null;
-    else if (b.via) want = Cam.flight(b.from, b.via, want)(ease.flight(k));
-    else want = Cam.zoomPath(b.from, want, 1.1)(ease.cam(k));
+    else {
+      const bw = b.via ? Cam.flight(b.from, b.via, want)(ease.flight(k)) : Cam.zoomPath(b.from, want, 1.1)(ease.cam(k));
+      if (finiteCam(bw)) want = bw; else App.blend = null;
+    }
   } else if (App.blend) App.blend = null;
   if (world === 'poster' && !(App.blend && App.blend.via)) {
     // close-ups stay on the paper: never show desk beside a tight shot (a flight between sections may glimpse the
@@ -604,7 +627,7 @@ function render(dt) {
   // a critically damped spring on (x, y, log w) absorbs every discontinuity (← / → mid-move, interrupted travel)
   // without lag you can feel; it settles exactly, so a still camera never re-rasterises the sheet
   let S = App.camS;
-  if (!S || App.camSnap || S.world !== world || !isFinite(S.x)) {
+  if (!S || App.camSnap || S.world !== world || !isFinite(S.x) || !isFinite(S.y) || !isFinite(S.l) || !isFinite(S.vx + S.vy + S.vl)) {
     S = App.camS = { x: want[0], y: want[1], l: Math.log(want[2]), vx: 0, vy: 0, vl: 0, world };
     App.camSnap = false;
   } else {
@@ -644,14 +667,14 @@ function render(dt) {
   // ---- the poster: ambient life + the section's scene
   let fw = null;
   if (world === 'poster') {
-    Ambient.draw(A, ctx);
-    if (s && s.draw) s.draw(T, A, ctx);
-    if (trip && s) Trip.travel(SCENES[trip.fromSi], s, clamp((A - trip.t0) / trip.dur), A);
-    if (App.mode === 'play') Play.draw(A, ctx);
+    guard('ambient', () => Ambient.draw(A, ctx));
+    if (s && s.draw) guard('draw ' + s.id, () => s.draw(T, A, ctx));
+    if (trip && s && SCENES[trip.fromSi]) guard('trip', () => Trip.travel(SCENES[trip.fromSi], s, clamp((A - trip.t0) / trip.dur), A));
+    if (App.mode === 'play') guard('play', () => Play.draw(A, ctx));
     // focus (depth of field + paper shade outside the subject)
-    fw = s && s.focus ? s.focus(T, A) : { x: 550, y: 450, rx: 900, ry: 800, k: 0 };
+    fw = (s && s.focus ? guard('focus ' + s.id, () => s.focus(T, A)) : null) || { x: 550, y: 450, rx: 900, ry: 800, k: 0 };
     const F = App.focus, sm = 1 - Math.exp(-dt / 0.3);
-    for (const key of ['x', 'y', 'rx', 'ry', 'k']) F[key] += (fw[key] - F[key]) * sm;
+    for (const key of ['x', 'y', 'rx', 'ry', 'k']) { const v = fw[key]; if (isFinite(v)) F[key] += (v - F[key]) * sm; }
     setA($('focusHole'), { cx: F.x.toFixed(1), cy: F.y.toFixed(1), rx: Math.max(1, F.rx).toFixed(1), ry: Math.max(1, F.ry).toFixed(1) });
     // the blurred plate has no actors on it: kept at half strength so moving parts and their labels never look ghosted
     G._set($('plateBlur'), 'opacity', (0.5 * F.k).toFixed(3));
@@ -693,7 +716,7 @@ function render(dt) {
       const P = L.scene;
       if (P && L.k > 0.3) {
         const speed = 1.35, Tp = ((A - L.t0) * speed) % P.dur;
-        P.draw(Tp, A, { ...ctx, preview: true });
+        guard('preview ' + P.id, () => P.draw(Tp, A, { ...ctx, preview: true }));
         const bi = beatAt(P, Tp);
         Loupe.caption(`${P.num} · ${P.title}  —  ${P.beats[bi][0]}`, Tp / P.dur, P.color, worldToScreen(L.x, L.y - R0)[1] < window.innerHeight * 0.15);
       } else Loupe.caption('', 0);
@@ -706,7 +729,7 @@ function render(dt) {
     }
     if (GLFX.ok) { if (live > 0) GLFX.dim(L.x, L.y, R0 * 0.99, R0 * 2.6, '#0E0A06', 0.38 * live * 0.85 * clamp(L.k)); }
     else setA($('lensDim'), { cx: L.x.toFixed(1), cy: L.y.toFixed(1), r: (R0 * 6.2).toFixed(1), opacity: (live * 0.85).toFixed(3) });
-  } else { show(Loupe.g, false); show(Loupe.top, false); App.loupe.k = 0; App.loupe.kv = 0; }   // no glass off the sheet
+  } else { Loupe.off(); App.loupe.k = 0; App.loupe.kv = 0; }   // no glass off the sheet
   // the wobble rests while the camera travels between sections (see Actors._wobble)
   Actors.wobK += ((trip ? 0 : 1) - Actors.wobK) * (1 - Math.exp(-dt / 0.18));
   Tiles.update(cam, lbox);
@@ -717,8 +740,8 @@ function render(dt) {
   Depth.update(cam, A, dt, world === 'poster');
 
   // ---- the instruments
-  if (s && s.hud) s.hud(T, A, ctx);
-  if (s && s.title !== false && s.speaker) HUD.title(s, bump(T, 0.6, 2.2, (s.titleOut || 7), (s.titleOut || 7) + 1.2));
+  if (s && s.hud) guard('hud ' + s.id, () => s.hud(T, A, ctx));
+  if (s && s.title !== false && s.speaker) guard('title', () => HUD.title(s, bump(T, 0.6, 2.2, (s.titleOut || 7), (s.titleOut || 7) + 1.2)));
   if (s && s.mag) {
     const lv = s.mag(T);
     HUD.mag(lv, 1);
