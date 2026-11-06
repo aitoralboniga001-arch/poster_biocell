@@ -326,8 +326,23 @@ const Actors = {
       const n = this.n++;
       // echo copies (onion skin) sit beneath; the body is wrapped twice so a wobble field can flow through it:
       // g (pose) > wg (filter space, slides with the flow) > ig (cancels the slide) > images
-      const eg = el('g', { 'data-echo': id }, layer);
-      const g = el('g', { 'data-actor': id }, layer);
+      // A cut-out often takes a piece of printed text with it (a heading or a pH tag beside its drawing). The plate
+      // beneath carries that text too, so when the cut-out pulses, wobbles or trails an echo its copy slides off the
+      // printed one: doubled, smeared letters. The label areas are therefore cut out of the actor in sheet space
+      // (they stay put however the actor moves) and the plate's own crisp text always shows, exactly once.
+      let host = layer;
+      const bb0 = a.bbox, lab = (Labels.list || []).filter(L => { const [x, y, w, h] = L.bbox; return x < bb0[0] + bb0[2] && x + w > bb0[0] && y < bb0[1] + bb0[3] && y + h > bb0[1]; });
+      if (lab.length) {
+        const P = 60, f = v => v.toFixed(2);
+        let d = `M${f(bb0[0] - P)},${f(bb0[1] - P)}h${f(bb0[2] + 2 * P)}v${f(bb0[3] + 2 * P)}h${f(-bb0[2] - 2 * P)}Z`;
+        // the hole takes the tag's pill or highlight box too, not only its letters
+        for (const L of lab) { const [x, y, w, h] = L.bbox, qx = h * 0.55, qy = h * 0.4; d += `M${f(x - qx)},${f(y - qy)}h${f(w + 2 * qx)}v${f(h + 2 * qy)}h${f(-w - 2 * qx)}Z`; }
+        const cp = el('clipPath', { id: `alab${n}`, clipPathUnits: 'userSpaceOnUse' }, this.defs);
+        el('path', { d, 'clip-rule': 'evenodd' }, cp);
+        host = el('g', {}, layer);          // the clip is switched on only while the actor moves (see end)
+      }
+      const eg = el('g', { 'data-echo': id }, host);
+      const g = el('g', { 'data-actor': id }, host);
       const wg = el('g', {}, g), ig = el('g', {}, wg);
       const imgs = [];
       const files = (a.states && a.states.length) ? a.states : [{ file: a.file, bbox: a.bbox }];
@@ -338,7 +353,7 @@ const Actors = {
         imgs.push(im);
       });
       const pv = a.pivot || [a.bbox[0] + a.bbox[2] / 2, a.bbox[1] + a.bbox[3] / 2];
-      this.m[id] = { n, g, wg, ig, eg, imgs, pivot: pv, rest: a.rest_state || 0, bbox: a.bbox, last: '', hist: [], wobOn: false };
+      this.m[id] = { n, g, wg, ig, eg, imgs, host: lab.length ? host : null, cp: `url(#alab${n})`, clipOn: false, pivot: pv, rest: a.rest_state || 0, bbox: a.bbox, last: '', hist: [], wobOn: false };
     }
   },
   has(id) { return !!this.m[id]; },
@@ -441,6 +456,12 @@ const Actors = {
       this._wobble(a, wob, A);
       this._shatter(a, p.shatter, p.sh || {});
       this._echo(a, p.echo, tr, A);
+      // label holes only while the drawing is displaced (a clip on every actor every frame costs real frame time)
+      if (a.host) {
+        const moving = Math.abs(p.dx + p.bdx) + Math.abs(p.dy + p.bdy) > 0.02 || Math.abs(p.rot) > 0.05 || Math.abs(p.sx * p.br - 1) > 0.002 ||
+          Math.abs(p.sy * p.br - 1) > 0.002 || wob > 0.01 || p.echo > 0.01 || p.shatter > 0.001;
+        if (moving !== a.clipOn) { a.clipOn = moving; if (moving) a.host.setAttribute('clip-path', a.cp); else a.host.removeAttribute('clip-path'); }
+      }
       const key = tr + '|' + p.op.toFixed(3) + '|' + p.st.toFixed(3);
       if (key === a.last) continue;
       a.last = key;
