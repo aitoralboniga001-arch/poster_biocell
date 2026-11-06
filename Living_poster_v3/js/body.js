@@ -87,16 +87,26 @@ const Body = {
     this.treeOuter = el('g', { stroke: '#6E4A4C', 'stroke-linecap': 'round', fill: 'none' }, g);
     this.treeInner = el('g', { stroke: '#F7DCD2', 'stroke-linecap': 'round', fill: 'none' }, g);
     this.treeLight = el('g', { stroke: '#FFF4EE', 'stroke-linecap': 'round', fill: 'none', opacity: 0.6 }, g);
-    for (const [x0, y0, x1, y1, w, d] of segs) {
-      el('line', { x1: x0, y1: y0, x2: x1, y2: y1, 'stroke-width': (w + Math.max(0.25, w * 0.16)).toFixed(3) }, this.treeOuter);
-      el('line', { x1: x0, y1: y0, x2: x1, y2: y1, 'stroke-width': w.toFixed(3) }, this.treeInner);
-      if (w > 0.6) el('line', { x1: x0 - w * 0.18, y1: y0 - w * 0.1, x2: x1 - w * 0.18, y2: y1 - w * 0.1, 'stroke-width': (w * 0.18).toFixed(3) }, this.treeLight);
+    // one path per stroke width instead of one <line> per segment (~1400 elements -> ~110): every line of a group has
+    // the same colour and no opacity of its own, so the picture is identical, but painting the body (redone on every
+    // frame of the dive, as the camera moves) records ~13x fewer items
+    const byW = (host, key, w, d) => { const m = host._byW || (host._byW = new Map()); m.set(key, (m.get(key) || '') + d); };
+    const seg = (x0, y0, x1, y1) => `M${+x0.toFixed(3)},${+y0.toFixed(3)}L${+x1.toFixed(3)},${+y1.toFixed(3)}`;
+    for (const [x0, y0, x1, y1, w] of segs) {
+      byW(this.treeOuter, (w + Math.max(0.25, w * 0.16)).toFixed(3), 0, seg(x0, y0, x1, y1));
+      byW(this.treeInner, w.toFixed(3), 0, seg(x0, y0, x1, y1));
+      if (w > 0.6) byW(this.treeLight, (w * 0.18).toFixed(3), 0, seg(x0 - w * 0.18, y0 - w * 0.1, x1 - w * 0.18, y1 - w * 0.1));
+    }
+    for (const host of [this.treeOuter, this.treeInner, this.treeLight]) {
+      for (const [sw, d] of host._byW) el('path', { d, 'stroke-width': sw }, host);
+      host._byW = null;
     }
     // cartilage rings on the trachea
     for (let y = 300; y < 470; y += 11) el('path', { d: `M787,${y} Q800,${y + 4} 813,${y}`, stroke: '#6E4A4C', 'stroke-width': 1.3, fill: 'none', opacity: 0.6 }, g);
 
     /* ---------- alveolar sacs at the twigs: grape clusters */
     this.sacG = el('g', {}, g);
+    const sacs = [];         // every alveolus of every grape cluster, in drawing order: [cx, cy, r]
     const sac = (x, y, ang, r, n, seed) => {
       const out = [];
       for (let i = 0; i < n; i++) {
@@ -104,10 +114,7 @@ const Body = {
         out.push([x + Math.cos(a) * dd, y + Math.sin(a) * dd, r * (0.82 + 0.3 * hash(seed + i))]);
       }
       out.push([x + Math.cos(ang) * r * 2.6, y + Math.sin(ang) * r * 2.6, r * 1.05]);
-      for (const [cx, cy, rr] of out) {
-        el('circle', { cx: cx.toFixed(3), cy: cy.toFixed(3), r: rr.toFixed(3), fill: '#F4D3C8', stroke: '#8E5B5B', 'stroke-width': (rr * 0.09).toFixed(3), opacity: 0.95 }, this.sacG);
-        el('circle', { cx: (cx - rr * 0.25).toFixed(3), cy: (cy - rr * 0.3).toFixed(3), r: (rr * 0.35).toFixed(3), fill: '#FFF6F1', opacity: 0.5 }, this.sacG);
-      }
+      sacs.push(...out);
       return out;
     };
     leaves.forEach((lf, i) => { if (!lf.onChain) sac(lf.x, lf.y, lf.ang, Math.min(lf.len * 0.36, 4.2), 4, i * 3 + 1); });
@@ -119,6 +126,18 @@ const Body = {
     const cl = sac(lastLeaf.x, lastLeaf.y, lastLeaf.ang, r0, 5, 99);
     const tgt = cl[cl.length - 1];
     this.target = { x: tgt[0], y: tgt[1], r: tgt[2] };
+    // ~2000 alveoli: on the GPU light layer when it is up (instanced discs, rings and highlights in the same order, so
+    // overlaps look the same), as SVG circles otherwise. Those round the target alveolus stay in SVG whatever happens,
+    // because its dark lumen and the poster inside it are drawn over them as the wall dissolves.
+    this.sacFar = el('g', {}, this.sacG); this.sacNear = el('g', {}, this.sacG);
+    this.sacList = [];
+    const nearR = 7.4 * this.target.r;
+    for (const [cx, cy, rr] of sacs) {
+      const near = Math.hypot(cx - this.target.x, cy - this.target.y) - rr < nearR, host = near ? this.sacNear : this.sacFar;
+      el('circle', { cx: cx.toFixed(3), cy: cy.toFixed(3), r: rr.toFixed(3), fill: '#F4D3C8', stroke: '#8E5B5B', 'stroke-width': (rr * 0.09).toFixed(3), opacity: 0.95 }, host);
+      el('circle', { cx: (cx - rr * 0.25).toFixed(3), cy: (cy - rr * 0.3).toFixed(3), r: (rr * 0.35).toFixed(3), fill: '#FFF6F1', opacity: 0.5 }, host);
+      if (!near) this.sacList.push(cx, cy, rr);
+    }
     this.chain.push({ x: tgt[0], y: tgt[1], len: r0 * 2, w: r0, d: 99 });
     const T = this.target;
     this.s = T.r * 0.985 / Math.hypot(550, 450);       // poster scale inside the alveolus
@@ -160,7 +179,13 @@ const Body = {
     return [T.x, T.y, wfit * this.s];
   },
 
+  /** set an attribute only when it changes: the body is thousands of vector strokes on one layer, and any change to
+   *  it re-rasterises all of them (~110 ms a frame), so a frame where nothing moves must touch nothing */
+  _set(e, k, v) { const c = e._c || (e._c = {}); if (c[k] !== v) { e.setAttribute(k, v); c[k] = v; } },
+  /** a mote of dust or air: on the GPU light layer when it is up (moving it never re-rasterises the vector body),
+   *  otherwise a pooled SVG circle */
   dot(x, y, r, fill, op) {
+    if (GLFX.ok) { GLFX.disc(x, y, r, fill, op); return; }
     let e = this.poolDots[this._di];
     if (!e) { e = el('circle', {}, this.dyn); this.poolDots.push(e); }
     e.style.display = '';
@@ -171,17 +196,34 @@ const Body = {
   /** draw the opening at story time T; returns the camera [cx, cy, w] in body units */
   draw(T, A, aspect) {
     this._di = 0;
-    // person draws itself, lungs bloom, the chest rises with the in-breath
-    this.strokes.forEach((s, i) => s.setAttribute('stroke-dasharray', `${(1000 * R(T, 6.6 + i * 0.12, 8.6 + i * 0.12, ease.cubic)).toFixed(0)} 1000`));
+    const S = (e, k, v) => this._set(e, k, v);
+    // person draws itself, lungs bloom, the chest rises with the in-breath. (A slow idle breathing on top of it, a
+    // 0.4 % scale wobble, used to change the lungs every frame and re-rasterise the whole body while the finale held
+    // still: about 110 ms a frame. The in-breath itself plays while the camera is moving anyway.)
+    this.strokes.forEach((s, i) => S(s, 'stroke-dasharray', `${(1000 * R(T, 6.6 + i * 0.12, 8.6 + i * 0.12, ease.cubic)).toFixed(0)} 1000`));
     const bloom = R(T, 8.0, 10.5, ease.out);
-    const breath = R(T, 9.4, 12.2, ease.sine) * 0.035 + Math.sin(A * 1.25) * 0.004 * bloom;
-    this.lungG.setAttribute('opacity', bloom.toFixed(3));
-    this.lungG.setAttribute('transform', `translate(800,600) scale(${(0.96 + 0.04 * bloom + breath).toFixed(4)}) translate(-800,-600)`);
+    const breath = R(T, 9.4, 12.2, ease.sine) * 0.035;
+    S(this.lungG, 'opacity', bloom.toFixed(3));
+    S(this.lungG, 'transform', `translate(800,600) scale(${(0.96 + 0.04 * bloom + breath).toFixed(4)}) translate(-800,-600)`);
     const tree = R(T, 9.0, 12.0);
-    this.treeOuter.setAttribute('opacity', tree.toFixed(3));
-    this.treeInner.setAttribute('opacity', tree.toFixed(3));
-    this.treeLight.setAttribute('opacity', (0.6 * tree).toFixed(3));
-    this.sacG.setAttribute('opacity', R(T, 10.0, 12.5).toFixed(3));
+    S(this.treeLight, 'opacity', (0.6 * tree).toFixed(3));
+    const n = this.chain.length - 1, fCam = this.diveF(T), iris = R(T, 27.0, 29.6, ease.cubic);
+    const cam = this._cam(T, aspect, fCam, n);
+
+    // the alveoli (grape clusters at every twig): on the GPU layer, only those in or near the view
+    const sacOp = R(T, 10.0, 12.5) * (1 - 0.85 * iris);
+    show(this.sacFar, !GLFX.ok);
+    if (GLFX.ok && sacOp > 0.003) {
+      const L = this.sacList, hw = cam[2] * 0.8, hh = cam[2] / aspect * 0.8, x0 = cam[0] - hw, x1 = cam[0] + hw, y0 = cam[1] - hh, y1 = cam[1] + hh;
+      const fill = GLFX.col('#F4D3C8'), edge = GLFX.col('#8E5B5B'), hi = GLFX.col('#FFF6F1');
+      for (let i = 0; i < L.length; i += 3) {
+        const cx = L[i], cy = L[i + 1], rr = L[i + 2];
+        if (cx + rr < x0 || cx - rr > x1 || cy + rr < y0 || cy - rr > y1) continue;
+        GLFX.disc(cx, cy, rr, fill, 0.95 * sacOp);
+        GLFX.ring(cx, cy, rr, rr * 0.09, edge, 0.95 * sacOp);
+        GLFX.disc(cx - rr * 0.25, cy - rr * 0.3, rr * 0.35, hi, 0.5 * sacOp);
+      }
+    }
 
     // dust in the air, drawn into the mouth by the in-breath, then down the airway
     const inhale = R(T, 9.2, 12.4, ease.sine);
@@ -196,8 +238,6 @@ const Body = {
       this.dot(x, y, sil ? 2.0 : 1.3, sil ? '#B8A07A' : '#8C8478', op);
     }
     // air streaming down the dive path (spaced evenly in generations, so there is always some near the camera)
-    const n = this.chain.length - 1;
-    const fCam = this.diveF(T);
     for (let i = 0; i < 46; i++) {
       const f = frac(i / 46 + A * 0.045) * n;
       if (Math.abs(f - fCam) > 3.2) continue;
@@ -205,20 +245,22 @@ const Body = {
       const off = (hash(i + 3) - 0.5) * node.w * 0.5;
       this.dot(p[0] + off, p[1] + off * 0.6, Math.max(node.w * 0.06, 0.004), '#FFFFFF', 0.85 * R(T, 12.5, 14) * (1 - R(T, 27, 28)));
     }
-    for (let j = this._di; j < this.poolDots.length; j++) this.poolDots[j].style.display = 'none';
+    for (let j = this._di; j < this.poolDots.length; j++) if (this.poolDots[j].style.display !== 'none') this.poolDots[j].style.display = 'none';
 
     // the alveolus holding the poster: glows as we approach, then its wall dissolves (iris)
-    const T0 = this.target, iris = R(T, 27.0, 29.6, ease.cubic);
-    this.alvClipC.setAttribute('r', (T0.r * (1 + 6 * iris)).toFixed(4));
-    this.alvLumen.setAttribute('r', (T0.r * (1 + 6 * iris)).toFixed(4));
-    this.alvWall.setAttribute('opacity', (1 - iris).toFixed(3));
-    this.alvWall.setAttribute('r', (T0.r * (1 + 0.5 * iris)).toFixed(4));
-    this.alvGlow.setAttribute('opacity', (bump(T, 23, 26, 27.5, 29) * 0.8).toFixed(3));
-    this.sacG.setAttribute('opacity', (R(T, 10.0, 12.5) * (1 - 0.85 * iris)).toFixed(3));
-    this.treeOuter.setAttribute('opacity', (tree * (1 - iris)).toFixed(3));
-    this.treeInner.setAttribute('opacity', (tree * (1 - iris)).toFixed(3));
-
-    // camera: body -> chest -> dive -> the alveolus -> the poster's own framing
+    const T0 = this.target;
+    S(this.alvClipC, 'r', (T0.r * (1 + 6 * iris)).toFixed(4));
+    S(this.alvLumen, 'r', (T0.r * (1 + 6 * iris)).toFixed(4));
+    S(this.alvWall, 'opacity', (1 - iris).toFixed(3));
+    S(this.alvWall, 'r', (T0.r * (1 + 0.5 * iris)).toFixed(4));
+    S(this.alvGlow, 'opacity', (bump(T, 23, 26, 27.5, 29) * 0.8).toFixed(3));
+    S(this.sacG, 'opacity', sacOp.toFixed(3));
+    S(this.treeOuter, 'opacity', (tree * (1 - iris)).toFixed(3));
+    S(this.treeInner, 'opacity', (tree * (1 - iris)).toFixed(3));
+    return cam;
+  },
+  /** camera: body -> chest -> dive -> the alveolus -> the poster's own framing */
+  _cam(T, aspect, fCam, n) {
     const full = [800, 520, Math.max(1700, 1050 * aspect)];
     const chest = [800, 590, Math.max(760, 520 * aspect)];
     let cam = full;

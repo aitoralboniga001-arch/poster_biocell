@@ -270,10 +270,31 @@ SCENES.push({
   hud(T) { Trip.mapHud(T); },
 });
 
+/** what is left of the bacterium is reused: amino acids leave through the exporter, and one rides all the way up to
+ *  the ER. Timed on Killing's original clock (33 -> 44.5); the Fusion scene plays it as its closing beat, where the
+ *  talk follows the arrows that show the fate of the degradation products. */
+function reuseFX(T, A) {
+  const [px, py] = window.GEOM.phago;
+  Actors.pose('killing.exporter', { wob: 0.9 * R(T, 33, 34) * (1 - R(T, 41, 42)) });
+  const outPath = Pth([[px + 6, py + 12], [px + 26, py + 46], [px + 42, py + 60], [px + 72, py + 66]]);
+  FX.flow(outPath, A, 9, 2.4, C.green, { sprite: 'sp-aa', s: 0.95, op: R(T, 33, 34.5) * (1 - R(T, 41.5, 42.5)), jitter: 1.2, spin: 2, tail: 0.1 });
+  W('reuse', R(T, 33.4, 34.2), C.green); W('recycled', R(T, 33.8, 34.6), C.green);
+  const ua = R(T, 36, 41.5, ease.sine);
+  if (ua > 0 && T < 42.4) {
+    const P = PATHS.recycle, pos = t => { const p = P.at(R(t, 36, 41.5, ease.sine)); return [p.x, p.y]; };
+    const p = FX.streak(pos, T, 0.6, C.green, 1.6, 1 - R(T, 41.8, 42.3), false);
+    G.use('sp-aa', p[0], p[1], 2.2, A * 2, 1 - R(T, 41.8, 42.3));
+    G.glow(p[0], p[1], 9, C.green, 0.75 * (1 - R(T, 41.8, 42.5)));
+  }
+  const end = PATHS.recycle.at(1);
+  FX.shock(end.x, end.y, T, 41.9, 30, C.green, 1.1, 1.1);
+  G.glow(end.x, end.y, 22, '#9FE3C3', 0.9 * bump(T, 41.6, 42, 42.8, 44.5));
+}
+
 /* ---------------------------------------------------------------- 1 · alveolar macrophage */
 SCENES.push({
   id: 's1', num: '1', title: 'Alveolar macrophage', speaker: 'Aitor', color: '#1E2433', hit: [20, 104, 220, 140],
-  beats: [['the alveolus', 7.5], ['the cell', 7], ['look closer', 13]],
+  beats: [['the alveolus', 7.5], ['the cell', 7], ['the question', 10]],
   titleOut: 6.5, ambient: 0.8,
   cam(T) {
     return Cam.track([
@@ -297,13 +318,26 @@ SCENES.push({
     const u = R(T, 8.6, 13.5, ease.sine);
     if (u > 0 && u < 1) G.comet(PATHS.cell, u, 0.18, C.gold, 2.4, 0.85);
     if (T > 8.6) G.glow(430, 128, 30, '#FFF0C8', 0.35 * bump(T, 13, 13.8, 15, 17));
+    // the question that runs through the poster, from this bacterium on the left to the lung tissue below; nothing
+    // inside the cell is shown yet (the talk leaves the intracellular steps to the sections that follow)
+    const [bx, by, br] = window.GEOM.bact;
+    inkRing('s1-bact', bx, by, br * 1.5, R(T, 15.2, 16.8), C.red, 0.6);
+    G.glow(bx, by, br * 1.4, '#FFE2CC', 0.5 * bump(T, 15.2, 16, 18.5, 20));
+    W('Bacterium', R(T, 15.6, 16.4), C.red);
+    const wall = this._wall || (this._wall = Pth(window.GEOM.wallTop));
+    const uw = R(T, 18, 22.5, ease.sine);
+    if (uw > 0 && uw < 1) G.comet(wall, uw, 0.22, C.gold, 2.6, 0.9);
+    G.glow(550, 760, 300, '#FFF0C8', 0.22 * bump(T, 18.5, 20, 22.5, 24));
   },
-  // a scripted loupe tour across the whole sheet: bacterium -> Golgi -> phagolysosome -> silica
+  // the glass follows the same question: it opens on the bacterium, then glides along the lung tissue below (outside
+  // the cell only: the intracellular steps belong to the sections that follow)
   loupe(T) {
-    if (T < 15 || T > 27) return null;
-    const stops = [[90, 330], [830, 250], [622, 665], [850, 560], [90, 330]];
-    const f = clamp((T - 15.4) / 11) * (stops.length - 1), i = Math.min(stops.length - 2, Math.floor(f));
-    const u = ease.cubic(clamp((f - i) * 1.6));   // dwell at each stop, then glide
+    if (T < 15 || T > 24) return null;
+    // low on the wall, on its healthy left half: the glass then holds the wall and the air space beneath it, never
+    // the cell above (the phagolysosome) nor the fibrosis on the right (both come later in the talk)
+    const stops = [[60, 392], [190, 812], [420, 816]];
+    const f = clamp((T - 16.6) / 5.4) * (stops.length - 1), i = Math.min(stops.length - 2, Math.floor(f));
+    const u = ease.cubic(clamp((f - i) * 1.4));
     return [lerp(stops[i][0], stops[i + 1][0], u), lerp(stops[i][1], stops[i + 1][1], u)];
   },
   hud(T) {
@@ -476,6 +510,108 @@ SCENES.push({
   },
 });
 
+/* ---------------------------------------------------------------- 2.7 · killing: the furnace */
+SCENES.push({
+  id: 's27', num: '2.7', title: 'Killing', speaker: 'Nerea', sub: 'the phagolysosome at work', color: '#C0392B', hit: [550, 595, 150, 140],
+  beats: [['NOX2 assembles', 7], ['the oxidative burst', 6.5], ['acid · pH 4.5', 6.5], ['hydrolases wake', 6.5], ['the bacterium falls apart', 8.5]],
+  ambient: 0.3,
+  cam(T) {
+    const [px, py] = window.GEOM.phago, nox = LP('NOX2'), va = LP('V-ATPase', 0.5, 0.5, [700, 610]);
+    return Cam.track([
+      // both shots keep the whole NOX2 subunit list (and the iNOS line under it) inside the frame
+      { t: 0, r: box(nox[0] - 2, nox[1] + 12, 104, 84) },
+      { t: 7, r: box(nox[0] - 18, nox[1] + 12, 128, 98), d: 1.8 },
+      { t: 13.5, r: box(va[0] - 25, va[1] + 15, 110, 90), d: 1.8 },
+      { t: 20, r: box(px, py, 170, 150), d: 2 },
+      { t: 26.5, r: box(px - 5, py + 8, 110, 90), d: 1.8 },
+    ], T);
+  },
+  focus(T) { const c = App.cam; return { x: c[0], y: c[1], rx: c[2] * 0.42, ry: c[2] / Cam.aspect * 0.46, k: T < 33 ? 0.75 : 0.35 }; },
+  mag(T) { return magFor(App.cam[2]); },
+  shakes: [[2.9, 0.55], [8.5, 0.25], [9.4, 0.25], [10.3, 0.3], [11.2, 0.3], [12.1, 0.35], [28.6, 1.3], ],
+  flashes: [[2.9, 0.12], [8.5, 0.08], [9.4, 0.08], [10.3, 0.08], [11.2, 0.08], [12.1, 0.1], [28.6, 0.42]],
+  draw(T, A) {
+    const [px, py, pr] = window.GEOM.phago, [bx, by] = Actors.m.bacterium_pl ? Actors.m.bacterium_pl.pivot : [px, py];
+    const inLumen = (i, A, amp) => { const a = hash(i + 0.5) * TAU, r = pr * (0.25 + 0.6 * Math.sqrt(hash(i + 7.7))), [jx, jy] = brown(i, A, amp, 0.9); return [px + Math.cos(a) * r + jx, py + Math.sin(a) * r * 0.9 + jy]; };
+    // 7a NOX2: the cytosolic subunits and Rac-GTP fly in and lock onto gp91phox · p22phox with a spring
+    const dock = spring(T, 1.0, 1.9, 0.38), moving = 1 - R(T, 2.4, 3.6);
+    Actors.pose('killing.nox2', { dx: 22 * (1 - dock), dy: 10 * (1 - dock), op: lerp(0.2, 1, R(T, 0.6, 1.6)), echo: moving, wob: 1.6 * moving + 0.35, ...jelly(A, 0.035 * moving) });
+    const nox = LP('gp91phox', 0, 0.5);
+    FX.shock(nox[0] - 6, nox[1], T, 2.9, 22, C.mag, 0.9);
+    ['NOX2', 'gp91phox', 'p47', 'Rac-GTP'].forEach((q, i) => W(q, R(T, 1 + i * 0.6, 1.8 + i * 0.6) * (1 - R(T, 19, 20)), C.mag));
+    // 7b electrons leap from NADPH across the membrane; every arrival detonates superoxide in the lumen
+    W('NADPH', R(T, 7.2, 8) * (1 - R(T, 19, 20)), C.mag);
+    const nad = LP('NADPH', 0.1, 0.5), e = LP('e⁻', 0.5, 0.5, [672, 688]);
+    for (let i = 0; i < 5; i++) {
+      const t0 = 7.7 + i * 0.9, land = inLumen(i * 3 + 1, 0, 0);
+      const path = Pth([nad, [e[0] + 6, e[1] + 2], e, [lerp(e[0], land[0], 0.5), lerp(e[1], land[1], 0.5) - 6], land]);
+      const pos = t => { const p = path.at(R(t, t0, t0 + 0.8, ease.in)); return [p.x, p.y]; };
+      if (T > t0 && T < t0 + 0.85) FX.streak(pos, T, 0.22, '#FFD447', 0.9, 1);
+      FX.burst(land[0], land[1], T, t0 + 0.8, 9, 16, C.ros, { sprite: 'sp-ros', s: 0.8, seed: i * 11, dur: 1.2 });
+      FX.shock(land[0], land[1], T, t0 + 0.8, 12, C.ros, 0.6, 0.7);
+    }
+    // the burst keeps fizzing: superoxide and peroxide twinkle through the lumen
+    for (let i = 0; i < 18; i++) { const t = frac(A / 1.3 + i * 0.173), p = inLumen(i, A, 2); G.use('sp-ros', p[0], p[1], 0.55 + 0.4 * t, A * 2 + i, bump(t, 0, 0.1, 0.35, 0.8) * R(T, 9, 10.5) * (1 - R(T, 27, 29))); }
+    W('O₂ → O₂', R(T, 8.6, 9.4) * (1 - R(T, 19, 20)), C.ros);
+    // 7c the V-ATPase turbine spins up and pumps protons in; the lumen fills and glows like a kiln
+    const va = LP('V-ATPase', 0.5, 0.5, [700, 610]), spin = T < 13.5 ? 0 : T < 15 ? (T - 13.5) ** 2 / 3 : 0.75 + (T - 15);
+    const vOn = R(T, 13.4, 14.2) * (1 - R(T, 26, 27.5));
+    FX.turbine('vatp', va[0] - 12, va[1] + 6, 4.2, spin * 9, C.mag, 0.85 * vOn);
+    const inflow = Pth([[va[0] + 6, va[1] - 10], [va[0] - 12, va[1] + 6], [lerp(va[0], px, 0.55), lerp(va[1], py, 0.5)], [px + 10, py - 6]]);
+    FX.flow(inflow, A, 12, 1.1, C.h, { sprite: 'sp-h', s: 0.85, op: vOn, jitter: 1.5, tail: 0.12 });
+    const nH = Math.floor(46 * R(T, 14.5, 20));
+    for (let i = 0; i < nH; i++) { const p = inLumen(i + 40, A, 3.5); G.use('sp-h', p[0], p[1], 0.62, 0, 0.85 * (1 - R(T, 33, 35))); }
+    W('V-ATPase', R(T, 13.8, 14.6) * (1 - R(T, 26, 27)), C.mag, [700, 610]);
+    W('pH 4.5', R(T, 17, 18), C.violet);
+    const kiln = R(T, 14.5, 19.5);
+    G.glow(px, py, pr * 1.15, '#FF7A4A', 0.2 * kiln * (0.82 + 0.18 * Math.sin(A * 2.2)) * (1 - R(T, 32.5, 35)));
+    // the lumen takes the colour of its pH as the pump works: 5.5 -> 4.5 (the gauge reads the same)
+    FX.lumen(px, py, pr * 1.02, lerp(5.5, 4.5, R(T, 14.5, 18.5)), 0.3 * R(T, 13.5, 15) * (1 - R(T, 32.5, 35)), A);
+    warmTint(0.5 * kiln * (1 - R(T, 32, 34.5)), '#FF7040');
+    // 7d acid hydrolases wake and swarm: pac-men circle the bacterium, dart in and bite
+    const wake = R(T, 20.3, 23);
+    Actors.pose('killing.hydrolases', { op: lerp(0.3, 1, wake), wob: 0.8 * wake });
+    ['cathepsins', 'lysozyme', 'nucleases', 'lipases'].forEach((q, i) => {
+      W(q, R(T, 21 + i * 0.7, 21.8 + i * 0.7) * (1 - R(T, 33, 34)), C.blue);
+      const p = LP(q, 0.5, -0.8); FX.shock(p[0], p[1] - 3, T, 21 + i * 0.7, 7, C.blue, 0.4, 0.6);
+    });
+    const swarm = R(T, 21.5, 23.5) * (1 - R(T, 33, 35));
+    for (let i = 0; i < 16; i++) {
+      const orbit = t => { const a = hash(i) * TAU + t * (0.9 + hash(i + 2) * 0.8) * (i % 2 ? 1 : -1), dart = Math.max(0, Math.sin(t * 2.3 + i * 1.7)) ** 6;
+        const r = lerp(22 + hash(i + 4) * 22, 9, dart); return [bx + Math.cos(a) * r * 1.15, by + Math.sin(a) * r * 0.85]; };
+      const [x, y] = orbit(A), [x0, y0] = orbit(A - 0.05);
+      FX.streak(orbit, A, 0.25, '#8FB2FF', 0.45, swarm * 0.6, false);
+      G.use('sp-enz', x, y, 1.05 * (0.85 + 0.15 * Math.abs(Math.sin(A * 9 + i))), Math.atan2(y - y0, x - x0) + Math.PI, swarm);
+      // each bite (the enzyme at the end of its dart) lights a little spark of catalytic activity
+      const dart = Math.max(0, Math.sin(A * 2.3 + i * 1.7)) ** 6;
+      if (dart > 0.8 && swarm > 0.05) FX.flare(x, y, 2.4 * swarm, i, '#D6E4FF', (dart - 0.8) / 0.2 * swarm * (1 - brkOf(T)));
+    }
+    // 7e the bacterium writhes, cracks, then breaks apart into fragments that shrink to nothing
+    const writhe = R(T, 22, 28.5), crack = R(T, 26.6, 28.3, ease.cubic), brk = R(T, 28.6, 32.6, ease.lin);
+    Actors.pose('bacterium_pl', {
+      st: lerp(0, 1, crack), wob: 0.4 + 2.2 * writhe * (1 - brk), rot: Math.sin(A * 11) * 1.6 * writhe * (1 - brk),
+      ...jelly(A, 0.03 * writhe * (1 - brk), 3.1), shatter: brk, sh: { st: 1, spread: 30, spin: 300, shrink: 0.82, fadeFrom: 0.45 },
+    });
+    FX.shock(bx, by, T, 28.6, 46, '#FFF2C8', 1.4, 1.1);
+    FX.burst(bx, by, T, 28.7, 22, 34, C.green, { sprite: 'sp-aa', s: 0.9, dur: 1.8, seed: 3 });
+    // fragments of the wall and cytoplasm fly apart, slow in the viscous lumen, and are digested away (shrink, fade)
+    if (GLFX.ok && T > 28.6 && T < 35) for (let i = 0; i < 34; i++) {
+      const a = hash(i * 1.37 + 4) * TAU, sp = 14 + 22 * hash(i + 41), t = T - 28.6 - hash(i + 9) * 0.15;
+      if (t <= 0) continue;
+      const d = sp * (1 - Math.exp(-t * 2.6)) / 2.6 * 2.2, [jx, jy] = brown(i + 700, A, 1.4, 1.2), life = 1 - R(T, 31 + hash(i + 3) * 1.5, 34.6);
+      const x = bx + Math.cos(a) * d + jx * R(t, 0.4, 1.2), y = by + Math.sin(a) * d * 0.85 + jy * R(t, 0.4, 1.2), sz = (0.6 + 1.1 * hash(i + 17)) * (0.35 + 0.65 * life);
+      if (i % 3 === 0) GLFX.seg(x - Math.cos(a + t) * sz, y - Math.sin(a + t) * sz, x + Math.cos(a + t) * sz, y + Math.sin(a + t) * sz, sz * 0.7, '#7E9446', 0.9 * life);
+      else GLFX.disc(x, y, sz, i % 3 === 1 ? '#A9BD6A' : '#C9D88E', 0.9 * life, 0, 0.25);
+      if (life < 0.95 && life > 0.05 && hash(i + Math.floor(T * 3)) > 0.82) FX.flare(x, y, 2.2, i, '#D6E4FF', 0.7 * life);
+    }
+  },
+  hud(T) {
+    if (T > 7 && T < 13.5) HUD.stopwatch('seconds', R(T, 8, 13) * 0.03, 1);
+    if (T > 13) HUD.gauge(lerp(5.5, 4.5, R(T, 14.5, 18.5)), R(T, 13, 14) * (1 - R(T, 33, 34)), 300);
+    if (T > 26.5 && T < 33) HUD.stopwatch('≈ minutes to hours', R(T, 27, 32) * 0.5, 1);
+  },
+});
+
 /* ---------------------------------------------------------------- 3 · lysosome biogenesis: follow the enzyme */
 SCENES.push({
   id: 's3', num: '3', title: 'Lysosome biogenesis', speaker: 'Urtzi', sub: 'the mannose-6-phosphate route', color: '#1F58C8', hit: [555, 115, 450, 360],
@@ -611,7 +747,7 @@ SCENES.push({
 /* ---------------------------------------------------------------- 4 · fusion: the kiss */
 SCENES.push({
   id: 's4', num: '4', title: 'Fusion', speaker: 'Eneritz', sub: 'tether · zipper · pore · recycle', color: '#7A3FB5', hit: [400, 530, 170, 130],
-  beats: [['a lysosome arrives', 5.5], ['a · tether', 6.5], ['b · zipper', 7.5], ['c · pore', 6.5], ['d · recycle', 6.5], ['into 2.6', 5.5]],
+  beats: [['a lysosome arrives', 5.5], ['a · tether', 6.5], ['b · zipper', 7.5], ['c · pore', 6.5], ['d · recycle', 6.5], ['into the phagolysosome', 5.5], ['products reused', 12]],
   ambient: 0.3,
   cam(T) {
     const t = LP('tether'), z = LP('zipper'), p = LP('pore'), r = LP('recycle');
@@ -622,12 +758,15 @@ SCENES.push({
       { t: 19.5, r: box(p[0] - 16, p[1] + 2, 70, 60), d: 1.8 },
       { t: 26, r: box(r[0] - 18, r[1] - 12, 70, 60), d: 1.8 },
       { t: 32.5, r: box(560, 660, 300, 200), d: 2.4 },
+      // the fate of the products: out through the exporter, then pull back to follow one up to the ER
+      { t: 38.5, r: box(window.GEOM.phago[0] + 60, window.GEOM.phago[1] - 40, 260, 220), d: 1.8 },
+      { t: 41, r: box(780, 420, 520, 560), d: 4.5 },
     ], T);
   },
-  focus(T) { const c = App.cam; return { x: c[0], y: c[1], rx: c[2] * 0.4, ry: c[2] / Cam.aspect * 0.45, k: T > 12 && T < 19.5 ? 1 : 0.65 }; },
+  focus(T) { const c = App.cam; return { x: c[0], y: c[1], rx: c[2] * 0.4, ry: c[2] / Cam.aspect * 0.45, k: T > 12 && T < 19.5 ? 1 : T > 38.5 ? 0.35 : 0.65 }; },
   mag(T) { return magFor(App.cam[2]); },
-  shakes: [[3.4, 0.35], [9.6, 0.5], [18.3, 0.5], [20.2, 1.1], [28, 0.5]],
-  flashes: [[18.3, 0.22], [20.2, 0.4]],
+  shakes: [[3.4, 0.35], [9.6, 0.5], [18.3, 0.5], [20.2, 1.1], [28, 0.5], [47.4, 0.4]],
+  flashes: [[18.3, 0.22], [20.2, 0.4], [47.4, 0.18]],
   draw(T, A) {
     // 4a a lysosome glides in along the dotted path, soft as a water balloon, and bumps to a stop
     const arr = spring(T, 0.5, 2.9, 0.42), mv = 1 - R(T, 2.6, 4.2);
@@ -689,130 +828,19 @@ SCENES.push({
     const fp = Pth([[lx + 30, ly + 42], [lx + 90, ly + 52], [window.GEOM.phago[0] - 30, window.GEOM.phago[1] + 20]]);
     FX.flow(fp, A, 12, 1.8, C.violet, { op: R(T, 33, 34) * (1 - R(T, 39, 40)), jitter: 2, w: 0.9, tail: 0.1 });
     W('Phagolysosome', R(T, 35.5, 36.5), C.violet);
+    // 4g "as Nerea explained, the hydrolases break the bacterium down": it crumbles once more, and what is left is
+    // reused (Killing's closing beat, 5.5 s later on this clock)
+    if (T > 36.6) {
+      const brk = R(T, 37, 39.6, ease.lin), [bx, by] = Actors.m.bacterium_pl ? Actors.m.bacterium_pl.pivot : window.GEOM.phago;
+      Actors.pose('bacterium_pl', { st: 1, wob: 1.2 * (1 - brk), shatter: brk, sh: { st: 1, spread: 30, spin: 300, shrink: 0.82, fadeFrom: 0.45 } });
+      FX.shock(bx, by, T, 37.1, 34, '#FFF2C8', 1.1, 1);
+    }
+    if (T > 38) reuseFX(T - 5.5, A);
   },
   hud(T) {
     if (T > 12.5 && T < 19.5) HUD.stopwatch('≈ milliseconds', R(T, 13.5, 18.2) * 0.05, 1);
     const z = LP('zipper');
     tagAt('snare', z[0] + 3, z[1] + 33, 'SNARE bundle ≈ 12 nm', bump(T, 14.5, 15.5, 18.6, 19.4), -1);
-  },
-});
-
-/* ---------------------------------------------------------------- 2.7 · killing: the furnace */
-SCENES.push({
-  id: 's27', num: '2.7', title: 'Killing', speaker: 'Nerea', sub: 'the phagolysosome at work', color: '#C0392B', hit: [550, 595, 150, 140],
-  beats: [['NOX2 assembles', 7], ['the oxidative burst', 6.5], ['acid · pH 4.5', 6.5], ['hydrolases wake', 6.5], ['the bacterium falls apart', 6.5], ['the circle of life', 9]],
-  ambient: 0.3,
-  cam(T) {
-    const [px, py] = window.GEOM.phago, nox = LP('NOX2'), va = LP('V-ATPase', 0.5, 0.5, [700, 610]);
-    return Cam.track([
-      // both shots keep the whole NOX2 subunit list (and the iNOS line under it) inside the frame
-      { t: 0, r: box(nox[0] - 2, nox[1] + 12, 104, 84) },
-      { t: 7, r: box(nox[0] - 18, nox[1] + 12, 128, 98), d: 1.8 },
-      { t: 13.5, r: box(va[0] - 25, va[1] + 15, 110, 90), d: 1.8 },
-      { t: 20, r: box(px, py, 170, 150), d: 2 },
-      { t: 26.5, r: box(px - 5, py + 8, 110, 90), d: 1.8 },
-      { t: 33, r: box(px + 60, py - 40, 260, 220), d: 1.8 },
-      { t: 35.5, r: box(780, 420, 520, 560), d: 4.5 },
-    ], T);
-  },
-  focus(T) { const c = App.cam; return { x: c[0], y: c[1], rx: c[2] * 0.42, ry: c[2] / Cam.aspect * 0.46, k: T < 33 ? 0.75 : 0.35 }; },
-  mag(T) { return magFor(App.cam[2]); },
-  shakes: [[2.9, 0.55], [8.5, 0.25], [9.4, 0.25], [10.3, 0.3], [11.2, 0.3], [12.1, 0.35], [28.6, 1.3], [41.9, 0.4]],
-  flashes: [[2.9, 0.12], [8.5, 0.08], [9.4, 0.08], [10.3, 0.08], [11.2, 0.08], [12.1, 0.1], [28.6, 0.42], [41.9, 0.18]],
-  draw(T, A) {
-    const [px, py, pr] = window.GEOM.phago, [bx, by] = Actors.m.bacterium_pl ? Actors.m.bacterium_pl.pivot : [px, py];
-    const inLumen = (i, A, amp) => { const a = hash(i + 0.5) * TAU, r = pr * (0.25 + 0.6 * Math.sqrt(hash(i + 7.7))), [jx, jy] = brown(i, A, amp, 0.9); return [px + Math.cos(a) * r + jx, py + Math.sin(a) * r * 0.9 + jy]; };
-    // 7a NOX2: the cytosolic subunits and Rac-GTP fly in and lock onto gp91phox · p22phox with a spring
-    const dock = spring(T, 1.0, 1.9, 0.38), moving = 1 - R(T, 2.4, 3.6);
-    Actors.pose('killing.nox2', { dx: 22 * (1 - dock), dy: 10 * (1 - dock), op: lerp(0.2, 1, R(T, 0.6, 1.6)), echo: moving, wob: 1.6 * moving + 0.35, ...jelly(A, 0.035 * moving) });
-    const nox = LP('gp91phox', 0, 0.5);
-    FX.shock(nox[0] - 6, nox[1], T, 2.9, 22, C.mag, 0.9);
-    ['NOX2', 'gp91phox', 'p47', 'Rac-GTP'].forEach((q, i) => W(q, R(T, 1 + i * 0.6, 1.8 + i * 0.6) * (1 - R(T, 19, 20)), C.mag));
-    // 7b electrons leap from NADPH across the membrane; every arrival detonates superoxide in the lumen
-    W('NADPH', R(T, 7.2, 8) * (1 - R(T, 19, 20)), C.mag);
-    const nad = LP('NADPH', 0.1, 0.5), e = LP('e⁻', 0.5, 0.5, [672, 688]);
-    for (let i = 0; i < 5; i++) {
-      const t0 = 7.7 + i * 0.9, land = inLumen(i * 3 + 1, 0, 0);
-      const path = Pth([nad, [e[0] + 6, e[1] + 2], e, [lerp(e[0], land[0], 0.5), lerp(e[1], land[1], 0.5) - 6], land]);
-      const pos = t => { const p = path.at(R(t, t0, t0 + 0.8, ease.in)); return [p.x, p.y]; };
-      if (T > t0 && T < t0 + 0.85) FX.streak(pos, T, 0.22, '#FFD447', 0.9, 1);
-      FX.burst(land[0], land[1], T, t0 + 0.8, 9, 16, C.ros, { sprite: 'sp-ros', s: 0.8, seed: i * 11, dur: 1.2 });
-      FX.shock(land[0], land[1], T, t0 + 0.8, 12, C.ros, 0.6, 0.7);
-    }
-    // the burst keeps fizzing: superoxide and peroxide twinkle through the lumen
-    for (let i = 0; i < 18; i++) { const t = frac(A / 1.3 + i * 0.173), p = inLumen(i, A, 2); G.use('sp-ros', p[0], p[1], 0.55 + 0.4 * t, A * 2 + i, bump(t, 0, 0.1, 0.35, 0.8) * R(T, 9, 10.5) * (1 - R(T, 27, 29))); }
-    W('O₂ → O₂', R(T, 8.6, 9.4) * (1 - R(T, 19, 20)), C.ros);
-    // 7c the V-ATPase turbine spins up and pumps protons in; the lumen fills and glows like a kiln
-    const va = LP('V-ATPase', 0.5, 0.5, [700, 610]), spin = T < 13.5 ? 0 : T < 15 ? (T - 13.5) ** 2 / 3 : 0.75 + (T - 15);
-    const vOn = R(T, 13.4, 14.2) * (1 - R(T, 26, 27.5));
-    FX.turbine('vatp', va[0] - 12, va[1] + 6, 4.2, spin * 9, C.mag, 0.85 * vOn);
-    const inflow = Pth([[va[0] + 6, va[1] - 10], [va[0] - 12, va[1] + 6], [lerp(va[0], px, 0.55), lerp(va[1], py, 0.5)], [px + 10, py - 6]]);
-    FX.flow(inflow, A, 12, 1.1, C.h, { sprite: 'sp-h', s: 0.85, op: vOn, jitter: 1.5, tail: 0.12 });
-    const nH = Math.floor(46 * R(T, 14.5, 20));
-    for (let i = 0; i < nH; i++) { const p = inLumen(i + 40, A, 3.5); G.use('sp-h', p[0], p[1], 0.62, 0, 0.85 * (1 - R(T, 33, 35))); }
-    W('V-ATPase', R(T, 13.8, 14.6) * (1 - R(T, 26, 27)), C.mag, [700, 610]);
-    W('pH 4.5', R(T, 17, 18), C.violet);
-    const kiln = R(T, 14.5, 19.5);
-    G.glow(px, py, pr * 1.15, '#FF7A4A', 0.2 * kiln * (0.82 + 0.18 * Math.sin(A * 2.2)) * (1 - R(T, 36, 39)));
-    // the lumen takes the colour of its pH as the pump works: 5.5 -> 4.5 (the gauge reads the same)
-    FX.lumen(px, py, pr * 1.02, lerp(5.5, 4.5, R(T, 14.5, 18.5)), 0.3 * R(T, 13.5, 15) * (1 - R(T, 36, 39)), A);
-    warmTint(0.5 * kiln * (1 - R(T, 33, 36)), '#FF7040');
-    // 7d acid hydrolases wake and swarm: pac-men circle the bacterium, dart in and bite
-    const wake = R(T, 20.3, 23);
-    Actors.pose('killing.hydrolases', { op: lerp(0.3, 1, wake), wob: 0.8 * wake });
-    ['cathepsins', 'lysozyme', 'nucleases', 'lipases'].forEach((q, i) => {
-      W(q, R(T, 21 + i * 0.7, 21.8 + i * 0.7) * (1 - R(T, 33, 34)), C.blue);
-      const p = LP(q, 0.5, -0.8); FX.shock(p[0], p[1] - 3, T, 21 + i * 0.7, 7, C.blue, 0.4, 0.6);
-    });
-    const swarm = R(T, 21.5, 23.5) * (1 - R(T, 33, 35));
-    for (let i = 0; i < 16; i++) {
-      const orbit = t => { const a = hash(i) * TAU + t * (0.9 + hash(i + 2) * 0.8) * (i % 2 ? 1 : -1), dart = Math.max(0, Math.sin(t * 2.3 + i * 1.7)) ** 6;
-        const r = lerp(22 + hash(i + 4) * 22, 9, dart); return [bx + Math.cos(a) * r * 1.15, by + Math.sin(a) * r * 0.85]; };
-      const [x, y] = orbit(A), [x0, y0] = orbit(A - 0.05);
-      FX.streak(orbit, A, 0.25, '#8FB2FF', 0.45, swarm * 0.6, false);
-      G.use('sp-enz', x, y, 1.05 * (0.85 + 0.15 * Math.abs(Math.sin(A * 9 + i))), Math.atan2(y - y0, x - x0) + Math.PI, swarm);
-      // each bite (the enzyme at the end of its dart) lights a little spark of catalytic activity
-      const dart = Math.max(0, Math.sin(A * 2.3 + i * 1.7)) ** 6;
-      if (dart > 0.8 && swarm > 0.05) FX.flare(x, y, 2.4 * swarm, i, '#D6E4FF', (dart - 0.8) / 0.2 * swarm * (1 - brkOf(T)));
-    }
-    // 7e the bacterium writhes, cracks, then breaks apart into fragments that shrink to nothing
-    const writhe = R(T, 22, 28.5), crack = R(T, 26.6, 28.3, ease.cubic), brk = R(T, 28.6, 32.6, ease.lin);
-    Actors.pose('bacterium_pl', {
-      st: lerp(0, 1, crack), wob: 0.4 + 2.2 * writhe * (1 - brk), rot: Math.sin(A * 11) * 1.6 * writhe * (1 - brk),
-      ...jelly(A, 0.03 * writhe * (1 - brk), 3.1), shatter: brk, sh: { st: 1, spread: 30, spin: 300, shrink: 0.82, fadeFrom: 0.45 },
-    });
-    FX.shock(bx, by, T, 28.6, 46, '#FFF2C8', 1.4, 1.1);
-    FX.burst(bx, by, T, 28.7, 22, 34, C.green, { sprite: 'sp-aa', s: 0.9, dur: 1.8, seed: 3 });
-    // fragments of the wall and cytoplasm fly apart, slow in the viscous lumen, and are digested away (shrink, fade)
-    if (GLFX.ok && T > 28.6 && T < 35) for (let i = 0; i < 34; i++) {
-      const a = hash(i * 1.37 + 4) * TAU, sp = 14 + 22 * hash(i + 41), t = T - 28.6 - hash(i + 9) * 0.15;
-      if (t <= 0) continue;
-      const d = sp * (1 - Math.exp(-t * 2.6)) / 2.6 * 2.2, [jx, jy] = brown(i + 700, A, 1.4, 1.2), life = 1 - R(T, 31 + hash(i + 3) * 1.5, 34.6);
-      const x = bx + Math.cos(a) * d + jx * R(t, 0.4, 1.2), y = by + Math.sin(a) * d * 0.85 + jy * R(t, 0.4, 1.2), sz = (0.6 + 1.1 * hash(i + 17)) * (0.35 + 0.65 * life);
-      if (i % 3 === 0) GLFX.seg(x - Math.cos(a + t) * sz, y - Math.sin(a + t) * sz, x + Math.cos(a + t) * sz, y + Math.sin(a + t) * sz, sz * 0.7, '#7E9446', 0.9 * life);
-      else GLFX.disc(x, y, sz, i % 3 === 1 ? '#A9BD6A' : '#C9D88E', 0.9 * life, 0, 0.25);
-      if (life < 0.95 && life > 0.05 && hash(i + Math.floor(T * 3)) > 0.82) FX.flare(x, y, 2.2, i, '#D6E4FF', 0.7 * life);
-    }
-    // 7f the pieces leave as amino acids through the exporter; one rides all the way up to the ER
-    Actors.pose('killing.exporter', { wob: 0.9 * R(T, 33, 34) * (1 - R(T, 41, 42)) });
-    const outPath = Pth([[px + 6, py + 12], [px + 26, py + 46], [px + 42, py + 60], [px + 72, py + 66]]);
-    FX.flow(outPath, A, 9, 2.4, C.green, { sprite: 'sp-aa', s: 0.95, op: R(T, 33, 34.5) * (1 - R(T, 41.5, 42.5)), jitter: 1.2, spin: 2, tail: 0.1 });
-    W('reuse', R(T, 33.4, 34.2), C.green); W('recycled', R(T, 33.8, 34.6), C.green);
-    const ua = R(T, 36, 41.5, ease.sine);
-    if (ua > 0 && T < 42.4) {
-      const P = PATHS.recycle, pos = t => { const p = P.at(R(t, 36, 41.5, ease.sine)); return [p.x, p.y]; };
-      const p = FX.streak(pos, T, 0.6, C.green, 1.6, 1 - R(T, 41.8, 42.3), false);
-      G.use('sp-aa', p[0], p[1], 2.2, A * 2, 1 - R(T, 41.8, 42.3));
-      G.glow(p[0], p[1], 9, C.green, 0.75 * (1 - R(T, 41.8, 42.5)));
-    }
-    const end = PATHS.recycle.at(1);
-    FX.shock(end.x, end.y, T, 41.9, 30, C.green, 1.1, 1.1);
-    G.glow(end.x, end.y, 22, '#9FE3C3', 0.9 * bump(T, 41.6, 42, 42.8, 44.5));
-  },
-  hud(T) {
-    if (T > 7 && T < 13.5) HUD.stopwatch('seconds', R(T, 8, 13) * 0.03, 1);
-    if (T > 13) HUD.gauge(lerp(5.5, 4.5, R(T, 14.5, 18.5)), R(T, 13, 14) * (1 - R(T, 33, 34)), 300);
-    if (T > 26.5 && T < 33) HUD.stopwatch('≈ minutes to hours', R(T, 27, 32) * 0.5, 1);
   },
 });
 
@@ -826,7 +854,7 @@ SCENES.push({
     return Cam.track([
       { t: 0, r: [955, 100, 145, 470] },
       { t: 6, r: box(sx + 5, sy, 140, 120), d: 2.2 },
-      { t: 13.5, r: box(nl[0] - 5, nl[1] - 20, 150, 120), d: 2 },
+      { t: 13.5, r: box(nl[0] - 8, nl[1] - 11, 150, 120), d: 2 },          // the NLRP3 wheel locks shut in full view
       { t: 21, r: box(980, 640, 150, 120), d: 2 },
       { t: 29, r: box(1040, 610, 190, 200), d: 2 },
       { t: 35.5, r: box(940, 735, 230, 120), d: 2.2 },
@@ -959,11 +987,15 @@ SCENES.push({
 
 /* ---------------------------------------------------------------- 6 · conclusion: the V */
 SCENES.push({
-  id: 's6', num: '6', title: 'Two routes converge to destroy', speaker: 'Aitor', color: '#1E9B6B', hit: [20, 845, 1060, 25],
-  beats: [['the whole cell', 4], ['the V', 9], ['when particles persist', 6], ['destroys', 7]],
+  id: 's6', num: '6', title: 'What counts as defence?', speaker: 'Aitor', color: '#1E9B6B', hit: [20, 845, 1060, 25],
+  beats: [['the whole cell', 4], ['the V', 9], ['when particles persist', 6], ['the injured lung', 7]],
   ambient: 0.5, titleOut: 7, shakes: [[10.4, 0.7]], flashes: [[10.4, 0.42]],
-  cam(T) { return Cam.track([{ t: 0, r: [-26, -22, 1152, 944] }], T); },
-  focus(T) { return { x: 560, y: 520, rx: 700, ry: 520, k: 0.3 * R(T, 0, 2) * (1 - R(T, 24, 26)) }; },
+  // the whole cell, then briefly down to the injured lung tissue, and back out to the whole sheet for the finale
+  cam(T) { return Cam.track([{ t: 0, r: [-26, -22, 1152, 944] }, { t: 19, r: box(860, 788, 560, 250), d: 2.6 }, { t: 24.4, r: [-26, -22, 1152, 944], d: 1.6 }], T); },
+  focus(T) {
+    if (T > 19 && T < 25) return { x: 860, y: 788, rx: 330, ry: 150, k: 0.5 * R(T, 19, 20.5) * (1 - R(T, 24, 25)) };
+    return { x: 560, y: 520, rx: 700, ry: 520, k: 0.3 * R(T, 0, 2) * (1 - R(T, 18, 19)) };
+  },
   draw(T, A, ctx) {
     ctx.breathRate = 2.2; ctx.breathAmp = 0.35;
     const ur = R(T, 4.5, 10.5, ease.sine), ub = R(T, 5, 10.5, ease.sine);
@@ -978,11 +1010,15 @@ SCENES.push({
     const am = R(T, 13.3, 14.5) * (1 - R(T, 19, 20));
     const [sx, sy] = window.GEOM.silica; G.glow(sx, sy, 70, C.amber, 0.45 * am * (0.8 + 0.2 * Math.sin(A * 3)));
     G.glow(950, 740, 60, C.amber, 0.45 * am); G.glow(820, 795, 120, C.amber, 0.3 * am);
-    // the conclusion line, and one last brush stroke under 'destroys'
-    W('Two routes', R(T, 19.2, 21.5), C.green);
-    W('destroys', R(T, 22, 23.5), C.red);
-    const d = Labels.find('destroys')[0];
-    if (d) G.glow(d.x + d.bbox[2] * lerp(0, 1, R(T, 22, 24, ease.sine)), d.y - d.size * 0.35, 14, '#FFF1C9', 0.8 * bump(T, 22, 22.4, 23.6, 24.2));
+    // trafficking brings cargo and digestive machinery together: the two routes meet (the poster's closing line)
+    W('Two routes', R(T, 11.6, 12.8), C.green);
+    // ...but uptake is not the same as successful defence: the talk ends on the tissue it is all meant to protect,
+    // the injured alveolar wall along the bottom of the sheet, its breath still shallow
+    const wall = this._wall || (this._wall = Pth(window.GEOM.wallTop));
+    const uw = R(T, 19.4, 23.6, ease.sine);
+    if (uw > 0 && uw < 1) G.comet(wall, lerp(0.45, 1, uw), 0.12, C.amber, 2.2, 0.9);
+    G.glow(860, 785, 150, C.amber, 0.3 * bump(T, 20.2, 21.6, 23.8, 25) * (0.85 + 0.15 * Math.sin(A * 2.2)));
+    W('Fibrosis', R(T, 21, 21.8) * (1 - R(T, 24, 25)), C.amber);
   },
 });
 
@@ -992,6 +1028,8 @@ SCENES.push({
   beats: [['out of the alveolus', 10], ['signatures', 12]],
   drawBody(T, A, aspect) {
     if (T < 0.6) return { cam: GALLERY_CAM(), world: 'poster' };
+    // the gallery comes next: its cover and plate are decoded before it appears, not on its first frames
+    if (T > 18) Warm.ahead(GALLERY_CAM(), true);
     const t = Math.max(12.6, 29.8 - (T - 0.6) * 1.8);
     const cam = Body.draw(t, A, aspect);
     DiveFX.draw(t, A, cam, aspect, 1 - R(T, 9, 11));

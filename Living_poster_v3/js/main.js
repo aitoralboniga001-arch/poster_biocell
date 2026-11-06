@@ -63,6 +63,8 @@ function setup() {
     goSection(sceneIdx('intro'), 'talk'); App.blend = null; App.camSnap = true; App.hold = true;
   }
   if (params.has('noattract')) App.noAttract = true;
+  App.lite = params.has('lite') ? { blur: true, flow: true } : {};
+  if (params.has('full')) App.full = true;
   if (params.has('fixed')) App.fixedDt = 1 / (+params.get('fixed') || 30);
   if (params.has('fps')) {            // ?fps: a frame-rate readout in the corner (frames per second, slowest frame)
     App.fps = { el: document.body.appendChild(Object.assign(document.createElement('div'), { id: 'fps' })), n: 0, t0: 0, worst: 0 };
@@ -137,15 +139,39 @@ const Sheet = {
    lighter version beneath it stays on screen. A request goes stale after a few seconds unused (Chrome may have
    evicted the bitmap since), and the next use decodes it again (a cache hit if it is still there). */
 const Pre = {
+  refresh: true,        // re-decode in-use bitmaps every few seconds so an evicted one is back before it is needed
   m: new Map(),
   ready(url) {
     let r = this.m.get(url);
-    if (!r) { r = { ok: false, t: 0, im: new Image() }; r.im.src = url; this.m.set(url, r); this._go(r); }
-    else if (r.ok && App.A - r.t > 4) { r.ok = false; this._go(r); }
+    if (!r) { r = { url, ok: false, t: 0, d: App.A, busy: false, fails: 0, retry: 0, im: null }; this.m.set(url, r); this._go(r); }
+    else if (r.ok && App.A - r.t > 4) { r.ok = false; r.d = App.A; this._go(r); }
+    else if (!r.ok && !r.busy && performance.now() > r.retry) { r.d = App.A; this._go(r); }
+    // in continuous use (a long hold at the end of a section, the lead-in to a hand-over) the browser may still have
+    // dropped the decoded bitmap: ask again every few seconds, in the background (a cache hit costs nothing)
+    else if (this.refresh && r.ok && !r.busy && App.A - r.d > 4) { r.d = App.A; this._go(r, true); }
     r.t = App.A;
     return r.ok;
   },
-  _go(r) { r.im.decode().then(() => { r.ok = true; }, () => { r.ok = true; }); },
+  _go(r, refresh = false) {
+    // a failed fetch or decode (a dropped connection, a flaky network) is never treated as ready: the lighter version
+    // already on screen stays, and the file is tried again later (1, 2, 4 ... 30 s). A background refresh of an image
+    // already in use never takes it back to not-ready.
+    if (!r.im || r.fails) { r.im = new Image(); r.im.decoding = 'async'; r.im.src = r.url; }
+    r.busy = true;
+    r.im.decode().then(() => { r.ok = true; r.busy = false; r.fails = 0; },
+      () => { r.busy = false; if (refresh) return; r.fails++; r.retry = performance.now() + Math.min(30000, 1000 * 2 ** (r.fails - 1)); });
+  },
+};
+
+/** keep what a coming view will draw decoded in the seconds before it appears (the film handing over to the poster,
+ *  the finale handing over to the gallery): the sheet's big images, the cut-out levels and tiles its camera wants.
+ *  Called every frame of the lead-in; Pre makes repeat calls cheap. */
+const Warm = {
+  ahead(cam, cover = false) {
+    Pre.ready('assets/plate.jpg');
+    if (cover) Pre.ready('assets/poster.jpg');
+    if (cam && finiteCam(cam)) { LOD.warm(cam); Tiles.warm(cam); }
+  },
 };
 
 /* ------------------------------------------------------------------ hi-res tiles, attached only when the camera is close */
@@ -173,15 +199,10 @@ const Tiles = {
       if (want && !t.e.getAttribute('href')) t.e.setAttribute('href', t.file);
       if (want !== t.on) { t.e.style.display = want ? '' : 'none'; t.on = want; }
     });
-    // once the tiles in view are all up, the plate beneath them is hidden: its full-size bitmap (61 MB) would
-    // otherwise sit in the GPU image cache next to them and push the cut-outs out
-    let covered = App.world === 'poster' && this.close;
-    if (covered) {
-      const vw = cam[2], vh = vw / Cam.aspect, x0 = cam[0] - vw * 0.52, x1 = cam[0] + vw * 0.52, y0 = cam[1] - vh * 0.52, y1 = cam[1] + vh * 0.52;
-      for (const t of this.list) { const [bx, by, bw, bh] = t.bbox; if (!t.on && bx < x1 && bx + bw > x0 && by < y1 && by + bh > y0) { covered = false; break; } }
-      if (extra) covered = false;                     // the glass shows the sheet around it too
-    }
-    show($('plate'), !covered);
+    // The plate stays up under the tiles. It used to be hidden once tiles covered the view (to keep its 61 MB bitmap
+    // out of the GPU image cache), but every pull-back then showed it again at the very moment the camera needs it at
+    // full size: a fresh upload of the whole bitmap on the GPU thread, two frames of ~200 ms (s5 T 42.6, every run).
+    // An interleaved A/B on the s2 close-ups (where tiles cover the view) found it no slower kept up.
   },
   /** start decoding what a camera about to arrive will need */
   warm(cam) { if (devPx() / cam[2] > 4.6) this.wants(cam, null, true).forEach((w, i) => w && Pre.ready(this.list[i].file)); },
@@ -406,7 +427,7 @@ const Loupe = {
     }
     // the living fluid: a slow noise field drifts ~1 mm/s and meanders; its strength fades in with the glass
     const A = App.A, ox = 9 * A + 14 * Math.sin(A * 0.11), oy = 6 * A + 14 * Math.cos(A * 0.083), fr = R0 / mag + 6;
-    const want = App.loupe.flow != null ? App.loupe.flow : 2.4;
+    const want = App.loupe.flow != null ? App.loupe.flow : App.lite.flow ? 0 : 2.4;
     this.flowAmp = Math.abs(want - (this.flowAmp || 0)) < 0.01 ? want : lerp(this.flowAmp || 0, want, 1 - Math.exp(-dt / 0.3));
     const amp = this.flowAmp * ko, fg = direct ? this.wFlow : this.flow, sg = direct ? this.wStill : this.still;
     if (this.flowG && this.flowG !== fg) this._flowOff();
@@ -561,10 +582,44 @@ function frame(now) {
       if (App.T >= s.dur - 1e-6 && (App.mode === 'film' || s.autoNext)) goSection(nextIdx(s));
     }
   }
+  Gov.tick(now);
   // a slip in one scene must never freeze the show: log it and keep the loop alive
   try { render(dt); } catch (e) { slip('frame', e); }
   requestAnimationFrame(frame);
 }
+/* the frame governor: on a GPU that cannot hold 60 fps (measured: a Radeon 780M on battery drops the s2 close-ups
+   to 25-40 fps) the costliest optional layers go, each on its own evidence, for the rest of the session:
+     blur  the blurred plate in the depth of field (an image drawn through a mask, re-rasterised every frame the
+           camera moves: about half of the lost frame time in the s2 close-ups); the darkening veil, which carries
+           most of the focus effect, stays;
+     flow  the fluid displacement under the magnifying glass (a filter pass over the glass every frame).
+   A layer goes only after two 3-second windows in a row in which a quarter of the frames that drew it were late.
+   ?lite starts with both gone; ?full keeps the full look whatever the frame rate. */
+const Gov = {
+  prev: 0,
+  w: { blur: { t0: 0, n: 0, slow: 0, bad: 0 }, flow: { t0: 0, n: 0, slow: 0, bad: 0 } },
+  /** is this optional layer on screen now? */
+  live(k) {
+    if (App.world !== 'poster') return false;
+    return k === 'blur' ? App.focus.k > 0.2 : !!Loupe.flowG && App.loupe.k > 0.5;
+  },
+  tick(now) {
+    const d = now - this.prev; this.prev = now;
+    const off = App.full || document.visibilityState !== 'visible' || App.hold || App.paused;
+    for (const k in this.w) {
+      const w = this.w[k];
+      if (App.lite[k]) continue;
+      // a gap of over 150 ms is a hitch (a decode, a tab switch), not steady load
+      if (off || !w.t0) { w.t0 = now; w.n = w.slow = 0; if (off) continue; }
+      if (!this.live(k) || d > 150) continue;
+      w.n++; if (d > 22) w.slow++;
+      if (now - w.t0 < 3000) continue;
+      w.bad = w.n > 60 && w.slow / w.n > 0.25 ? w.bad + 1 : 0;
+      if (w.bad >= 2) { App.lite[k] = true; console.info(`frame governor: ${k === 'blur' ? 'depth-of-field blur' : 'glass fluid'} off to hold 60 fps`); }
+      w.t0 = now; w.n = w.slow = 0;
+    }
+  },
+};
 /** log an error once per distinct message (a hook that throws every frame would otherwise flood the console) */
 function slip(tag, e) {
   const m = tag + ': ' + (e && e.message || e), S = App._errs || (App._errs = new Set());
@@ -677,7 +732,9 @@ function render(dt) {
     for (const key of ['x', 'y', 'rx', 'ry', 'k']) { const v = fw[key]; if (isFinite(v)) F[key] += (v - F[key]) * sm; }
     setA($('focusHole'), { cx: F.x.toFixed(1), cy: F.y.toFixed(1), rx: Math.max(1, F.rx).toFixed(1), ry: Math.max(1, F.ry).toFixed(1) });
     // the blurred plate has no actors on it: kept at half strength so moving parts and their labels never look ghosted
-    G._set($('plateBlur'), 'opacity', (0.5 * F.k).toFixed(3));
+    // (a GPU that cannot hold 60 fps with it, e.g. a laptop iGPU on battery, loses this blur first: see Gov)
+    G._set($('plateBlur'), 'opacity', (App.lite.blur ? 0 : 0.5 * F.k).toFixed(3));
+    show($('plateBlur'), !App.lite.blur);
     G._set($('veil'), 'opacity', (0.24 * F.k).toFixed(3));
     show($('dof'), F.k > 0.002);           // a masked group costs a mask pass even when everything in it is transparent
     Sweep.update(A, s, cam);

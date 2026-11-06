@@ -183,9 +183,11 @@ const Intro = {
   frame(Ts, A) {
     const T = this.tmap(Ts);
     this.draw(T, A);
-    if (T < 28.5) return { cam: GALLERY_CAM(), world: 'intro' };
     // behind the (still opaque) film the poster waits, framed so its phagolysosome is exactly the film's one
     const [px, py, pr] = window.GEOM.phago, w0 = pr * window.innerWidth / (this.RP_END * this.s * this.ZOOM);
+    // its images are decoded during the last seconds of the film, not on the frame it appears (a 100-300 ms hitch)
+    if (T > 24 && T < 33) Warm.ahead([px, py, w0]);
+    if (T < 28.5) return { cam: GALLERY_CAM(), world: 'intro' };
     const k = R(T, 31.9, 36.0, ease.cam);
     return { cam: k <= 0 ? [px, py, w0] : Cam.zoomPath([px, py, w0], GALLERY_CAM(), 1.1)(k), world: 'poster' };
   },
@@ -658,7 +660,7 @@ const Intro = {
 
 /* ================================================================== the route map ================================================================== */
 const Trip = {
-  ids: ['s1', 's2', 's3', 's4', 's27', 's5', 's6'],
+  ids: ['s1', 's2', 's27', 's3', 's4', 's5', 's6'],   // the order of the talk
   heads: { s1: 'Alveolar macrophage', s2: 'Recognition', s3: 'Lysosome biogenesis', s4: 'Fusion', s27: 'Killing', s5: 'Particles', s6: 'Two routes' },
   isStop(s) { return !!s && this.ids.includes(s.id); },
   navList() { return this._nav || (this._nav = this.ids.map(id => SCENES.find(s => s.id === id)).filter(Boolean)); },

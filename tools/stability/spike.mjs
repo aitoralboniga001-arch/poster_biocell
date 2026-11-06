@@ -13,6 +13,8 @@ const ch = spawn(CHROME, [`--remote-debugging-port=${PORT}`, `--user-data-dir=${
   '--no-first-run', '--no-default-browser-check', 'about:blank'], { stdio: 'ignore' });
 fs.mkdirSync(OUT, { recursive: true });
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+// never hang silently: a stalled Chrome (profile lock, lost socket) ends the run with a clear message
+setTimeout(() => { console.log('TIMEOUT: run stalled'); try { ch.kill(); } catch {} process.exit(2); }, +(process.env.LIMIT || 240) * 1000).unref();
 let ws, id = 0, traceDone; const pending = new Map(), events = [];
 for (let i = 0; i < 80 && !ws; i++) {
   try { const l = await (await fetch(`http://127.0.0.1:${PORT}/json/list`)).json(); const p = l.find(t => t.type === 'page'); if (p) { const w = new WebSocket(p.webSocketDebuggerUrl); await new Promise(r => w.onopen = r); ws = w; } } catch {}
@@ -22,16 +24,38 @@ ws.onmessage = m => { const d = JSON.parse(m.data); if (d.id && pending.has(d.id
 const send = (method, params = {}) => new Promise(r => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });
 const ev = async expr => { const r = await send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true }); if (r.result?.exceptionDetails) throw new Error(JSON.stringify(r.result.exceptionDetails).slice(0, 400)); return r.result?.result?.value; };
 await send('Page.enable'); await send('Runtime.enable');
+// start from an empty HTTP cache: the pages-like server lets files live 10 min, and a profile reused within that
+// window would otherwise run the previous build's scripts
+await send('Network.enable'); await send('Network.clearBrowserCache'); await send('Network.disable');
 await send('Emulation.setDeviceMetricsOverride', { width: W, height: H, deviceScaleFactor: 1, mobile: false });
-await send('Page.navigate', { url: URL0 });
-await ev(`new Promise(r => { const c = () => (typeof App !== 'undefined' && App.last && !App.hold) ? r(1) : setTimeout(c, 100); c(); })`);
-await sleep(1500);
-// arrive the way the film does: seek a little before and let it play into the window
-await ev(`__seek('${SID}', ${Math.max(0, T0 - 1.5)}); App.mode = 'film';`);
-await sleep(1500 / 1.2);
-events.length = 0;
-await send('Tracing.start', { categories: 'devtools.timeline,disabled-by-default-devtools.timeline,disabled-by-default-devtools.timeline.frame,cc,gpu,blink.image_decoding,skia', transferMode: 'ReportEvents' });
-await ev(`window.__fr = []; (function f(t){ window.__fr.push([t, App.T, cur() && cur().id]); if (!window.__stop) requestAnimationFrame(f); })(performance.now())`);
+const CATS = 'devtools.timeline,disabled-by-default-devtools.timeline,disabled-by-default-devtools.timeline.frame,cc,gpu,blink.image_decoding,skia';
+const probe = `window.__fr = []; (function f(t){ window.__fr.push([t, App.T, cur() && cur().id]); if (!window.__stop) requestAnimationFrame(f); })(performance.now())`;
+// special stretches: 'load' traces the curtain lifting (from navigation); 'galleryA' traces pressing A after
+// <tStart> seconds of idle gallery
+if (SID === 'load') {
+  await send('Tracing.start', { categories: CATS, transferMode: 'ReportEvents' });
+  await send('Page.navigate', { url: URL0 });
+  await ev(`new Promise(r => { const c = () => (typeof App !== 'undefined' && App.last && !App.hold) ? r(1) : setTimeout(c, 50); c(); })`);
+  await ev(probe);                                    // the trace covers the whole load; frames are timed from here
+} else {
+  await send('Page.navigate', { url: URL0 });
+  await ev(`new Promise(r => { const c = () => (typeof App !== 'undefined' && App.last && !App.hold) ? r(1) : setTimeout(c, 100); c(); })`);
+  await sleep(1500);
+  if (SID === 'galleryA') {
+    await ev(`goGallery(); App.blend = null`);
+    await sleep(T0 * 1000);
+  } else {
+    // arrive the way the film does: seek a little before and let it play into the window
+    const LEAD = +(process.env.LEAD || 1.5);
+    await ev(`__seek('${SID}', ${Math.max(0, T0 - LEAD)}); App.mode = 'film';`);
+    await sleep(LEAD * 1000 / 1.2);
+  }
+  if (process.env.PRE) await ev(process.env.PRE);   // an A/B variant applied in the page before tracing
+  events.length = 0;
+  await send('Tracing.start', { categories: CATS, transferMode: 'ReportEvents' });
+  await ev(probe);
+  if (SID === 'galleryA') { await sleep(300); await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'a', code: 'KeyA' }); await send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'a', code: 'KeyA' }); }
+}
 await sleep(SECS * 1000);
 const fr = await ev(`(() => { const a = window.__fr; window.__stop = 1; const out = []; for (let i = 1; i < a.length; i++) { const d = a[i][0] - a[i-1][0]; if (d > 40) out.push([Math.round(d), +a[i][1].toFixed(2), a[i][2]]); } return { n: a.length, long: out }; })()`);
 const done = new Promise(r => traceDone = r); await send('Tracing.end'); await done;

@@ -34,6 +34,9 @@ const send = (method, params = {}) => new Promise(r => { const i = ++id; pending
 const ev = async expr => { const r = await send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true }); if (r.result?.exceptionDetails) return 'ERR ' + JSON.stringify(r.result.exceptionDetails).slice(0, 300); return r.result?.result?.value; };
 const key = async k => { const code = k === 'a' ? 'KeyA' : k; await send('Input.dispatchKeyEvent', { type: 'keyDown', key: k, code }); await send('Input.dispatchKeyEvent', { type: 'keyUp', key: k, code }); };
 await send('Page.enable'); await send('Runtime.enable'); await send('Log.enable'); await send('Inspector.enable');
+// start from an empty HTTP cache: the pages-like server lets files live 10 min, and a profile reused within that
+// window would otherwise run the previous build's scripts
+await send('Network.enable'); await send('Network.clearBrowserCache'); await send('Network.disable');
 await send('Emulation.setDeviceMetricsOverride', { width: W, height: H, deviceScaleFactor: 1, mobile: false });
 await send('Page.navigate', { url: URL0 });
 await ev(`new Promise(r => { const c = () => (typeof App !== 'undefined' && App.last) ? r(1) : setTimeout(c, 100); c(); })`);
